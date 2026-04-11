@@ -11,6 +11,7 @@ from typing import Any, Callable, TypeVar, get_type_hints
 from pydantic import BaseModel
 
 from .budget import BudgetTracker
+from .cache import HookCache
 from .circuit import CircuitBreaker
 from .context import HookContext
 from .exceptions import (
@@ -95,6 +96,10 @@ class HookRouter:
         # Circuit breaker params
         circuit_failure_threshold: int = 5,
         circuit_recovery_timeout: float = 30.0,
+        # Cache params
+        cache_enabled: bool = False,
+        cache_max_size: int = 128,
+        cache_ttl_seconds: float = 300.0,
     ):
         if provider is not None:
             self._provider = provider
@@ -113,6 +118,10 @@ class HookRouter:
         self._circuits: dict[str, CircuitBreaker] = {}
         self._circuit_failure_threshold = circuit_failure_threshold
         self._circuit_recovery_timeout = circuit_recovery_timeout
+        self._cache_enabled = cache_enabled
+        self._cache_max_size = cache_max_size
+        self._cache_ttl_seconds = cache_ttl_seconds
+        self._caches: dict[str, HookCache] = {}
 
     @property
     def provider(self) -> LLMProvider:
@@ -121,6 +130,14 @@ class HookRouter:
     @property
     def hooks(self) -> dict[str, HookConfig]:
         return self._hooks
+
+    def _get_cache(self, hook_name: str) -> HookCache:
+        if hook_name not in self._caches:
+            self._caches[hook_name] = HookCache(
+                max_size=self._cache_max_size,
+                ttl_seconds=self._cache_ttl_seconds,
+            )
+        return self._caches[hook_name]
 
     def _get_circuit(self, hook_name: str) -> CircuitBreaker:
         if hook_name not in self._circuits:
@@ -231,6 +248,19 @@ class HookRouter:
         last_error: Exception | None = None
         attempts = 1 + config.max_retries
 
+        # Cache check (before any gates or API calls)
+        if self._cache_enabled:
+            cache = self._get_cache(config.name)
+            cached = cache.get(user_message)
+            if cached is not None:
+                try:
+                    result = output_model.model_validate(cached)
+                    ctx.record_fallback("cache", reason="cache hit")
+                    self._record_stats(ctx)
+                    return result
+                except Exception:
+                    pass  # Invalid cache entry, proceed normally
+
         # Gate: Budget check
         if not self._budget.check(config.name):
             error = HookBudgetError(
@@ -302,6 +332,9 @@ class HookRouter:
                     output_tokens=response.output_tokens,
                     cost_usd=response.cost_usd,
                 )
+                # Cache the successful response
+                if self._cache_enabled:
+                    self._get_cache(config.name).put(user_message, response.content)
                 self._record_stats(ctx)
                 return result
             except asyncio.TimeoutError:
@@ -325,6 +358,40 @@ class HookRouter:
 
         circuit = self._get_circuit(config.name)
         circuit.record_failure()
+
+        # Special fallback: CACHE — return most recent cached response
+        if config.fallback == FallbackStrategy.CACHE:
+            if self._cache_enabled:
+                cache = self._get_cache(config.name)
+                cached = cache.get_latest()
+                if cached is not None:
+                    try:
+                        result = output_model.model_validate(cached)
+                        ctx.record_fallback("cache", reason=f"cache fallback: {last_error}")
+                        self._record_stats(ctx)
+                        return result
+                    except Exception:
+                        pass
+            ctx.record_fallback("cache", reason=f"no cache available: {last_error}")
+            self._record_stats(ctx)
+            return None
+
+        # Special fallback: CASCADE — try cheaper models
+        if config.fallback == FallbackStrategy.CASCADE:
+            cascade_result = await self._try_cascade(
+                config=config,
+                output_model=output_model,
+                output_schema=output_schema,
+                user_message=user_message,
+                ctx=ctx,
+            )
+            if cascade_result is not None:
+                return cascade_result
+            ctx.record_fallback("cascade", reason=f"all models failed: {last_error}")
+            self._record_stats(ctx)
+            return None
+
+        # Standard fallbacks: skip, default, raise, local
         ctx.record_fallback(config.fallback.value, reason=str(last_error))
         self._record_stats(ctx)
         return await resolve_fallback_async(
@@ -335,6 +402,54 @@ class HookRouter:
             kwargs=kwargs,
             default_response=config.default_response,
         )
+
+    async def _try_cascade(
+        self,
+        *,
+        config: HookConfig,
+        output_model: type[BaseModel],
+        output_schema: dict[str, Any],
+        user_message: str,
+        ctx: HookContext,
+    ) -> Any | None:
+        """Try cheaper models in cascade order when primary fails."""
+        cascade_order = ["opus", "sonnet", "haiku"]
+        current = config.model or "sonnet"
+        try:
+            idx = cascade_order.index(current)
+        except ValueError:
+            return None
+
+        for fallback_model in cascade_order[idx + 1:]:
+            try:
+                timeout = self._provider.model_timeout(fallback_model)
+                response = await asyncio.wait_for(
+                    self._provider.complete(
+                        system_prompt=config.system_prompt,
+                        user_message=user_message,
+                        output_schema=output_schema,
+                        model=fallback_model,
+                        timeout_seconds=timeout,
+                    ),
+                    timeout=timeout,
+                )
+                result = output_model.model_validate(response.content)
+                ctx.record_response(response)
+                circuit = self._get_circuit(config.name)
+                circuit.record_success()
+                self._budget.record(
+                    config.name,
+                    input_tokens=response.input_tokens,
+                    output_tokens=response.output_tokens,
+                    cost_usd=response.cost_usd,
+                )
+                if self._cache_enabled:
+                    self._get_cache(config.name).put(user_message, response.content)
+                self._record_stats(ctx)
+                return result
+            except Exception:
+                continue
+        return None
 
     def _record_stats(self, ctx: HookContext) -> None:
         if ctx.hook_name not in self._stats:
