@@ -10,8 +10,11 @@ from typing import Any, Callable, TypeVar, get_type_hints
 
 from pydantic import BaseModel
 
+from .budget import BudgetTracker
+from .circuit import CircuitBreaker
 from .context import HookContext
 from .exceptions import (
+    HookBudgetError,
     HookError,
     HookProviderError,
     HookTimeoutError,
@@ -80,7 +83,19 @@ def _run_sync(coro):
 
 
 class HookRouter:
-    def __init__(self, *, provider: LLMProvider | None = None, api_key: str | None = None):
+    def __init__(
+        self,
+        *,
+        provider: LLMProvider | None = None,
+        api_key: str | None = None,
+        # Budget params
+        calls_per_hour: int | None = None,
+        tokens_per_hour: int | None = None,
+        global_max_cost_per_hour: float | None = None,
+        # Circuit breaker params
+        circuit_failure_threshold: int = 5,
+        circuit_recovery_timeout: float = 30.0,
+    ):
         if provider is not None:
             self._provider = provider
         elif api_key is not None:
@@ -90,6 +105,14 @@ class HookRouter:
             raise ValueError("Provide either a 'provider' instance or an 'api_key' for Claude.")
         self._hooks: dict[str, HookConfig] = {}
         self._stats: dict[str, list[HookContext]] = {}
+        self._budget = BudgetTracker(
+            calls_per_hour=calls_per_hour,
+            tokens_per_hour=tokens_per_hour,
+            global_max_cost_per_hour=global_max_cost_per_hour,
+        )
+        self._circuits: dict[str, CircuitBreaker] = {}
+        self._circuit_failure_threshold = circuit_failure_threshold
+        self._circuit_recovery_timeout = circuit_recovery_timeout
 
     @property
     def provider(self) -> LLMProvider:
@@ -98,6 +121,14 @@ class HookRouter:
     @property
     def hooks(self) -> dict[str, HookConfig]:
         return self._hooks
+
+    def _get_circuit(self, hook_name: str) -> CircuitBreaker:
+        if hook_name not in self._circuits:
+            self._circuits[hook_name] = CircuitBreaker(
+                failure_threshold=self._circuit_failure_threshold,
+                recovery_timeout=self._circuit_recovery_timeout,
+            )
+        return self._circuits[hook_name]
 
     def hook(
         self,
@@ -200,6 +231,43 @@ class HookRouter:
         last_error: Exception | None = None
         attempts = 1 + config.max_retries
 
+        # Gate: Budget check
+        if not self._budget.check(config.name):
+            error = HookBudgetError(
+                f"Hook '{config.name}' is over budget",
+                hook_name=config.name,
+                limit=self._budget._calls_per_hour or 0,
+                current=0,
+            )
+            ctx.record_fallback(config.fallback.value, reason=str(error))
+            self._record_stats(ctx)
+            return await resolve_fallback_async(
+                strategy=config.fallback,
+                error=error,
+                original_func=original_func,
+                args=args,
+                kwargs=kwargs,
+                default_response=config.default_response,
+            )
+
+        # Gate: Circuit breaker check
+        circuit = self._get_circuit(config.name)
+        if not circuit.should_allow():
+            error = HookProviderError(
+                f"Circuit breaker open for hook '{config.name}'",
+                provider=self._provider.name,
+            )
+            ctx.record_fallback(config.fallback.value, reason=str(error))
+            self._record_stats(ctx)
+            return await resolve_fallback_async(
+                strategy=config.fallback,
+                error=error,
+                original_func=original_func,
+                args=args,
+                kwargs=kwargs,
+                default_response=config.default_response,
+            )
+
         for attempt in range(attempts):
             try:
                 response = await asyncio.wait_for(
@@ -225,6 +293,15 @@ class HookRouter:
                     raise HookValidationError(
                         str(validation_err), raw_response=response.raw_text
                     ) from validation_err
+                # Record in budget and circuit
+                circuit = self._get_circuit(config.name)
+                circuit.record_success()
+                self._budget.record(
+                    config.name,
+                    input_tokens=response.input_tokens,
+                    output_tokens=response.output_tokens,
+                    cost_usd=response.cost_usd,
+                )
                 self._record_stats(ctx)
                 return result
             except asyncio.TimeoutError:
@@ -246,6 +323,8 @@ class HookRouter:
                     ctx.retries += 1
                     continue
 
+        circuit = self._get_circuit(config.name)
+        circuit.record_failure()
         ctx.record_fallback(config.fallback.value, reason=str(last_error))
         self._record_stats(ctx)
         return await resolve_fallback_async(
@@ -294,4 +373,12 @@ class HookRouter:
             "total_input_tokens": total_input,
             "total_output_tokens": total_output,
             "hooks": hook_stats,
+            "budget": {
+                hook_name: self._budget.remaining(hook_name)
+                for hook_name in self._hooks
+            },
+            "circuit_breakers": {
+                hook_name: self._get_circuit(hook_name).stats()
+                for hook_name in self._hooks
+            },
         }
