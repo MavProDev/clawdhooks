@@ -39,10 +39,14 @@ dev = [
     "opentelemetry-sdk>=1.20",
     "fastapi>=0.100",
     "httpx>=0.24",
+    "openai>=1.30",
 ]
 fastapi = [
     "fastapi>=0.100",
     "httpx>=0.24",
+]
+openai = [
+    "openai>=1.30",
 ]
 pii = [
     "presidio-analyzer>=2.2",
