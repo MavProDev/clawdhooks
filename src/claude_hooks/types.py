@@ -13,6 +13,8 @@ class FallbackStrategy(Enum):
     DEFAULT = "default"  # Return a pre-defined default response
     RAISE = "raise"      # Raise the exception — pipeline must halt
     LOCAL = "local"      # Run the original function body as fallback
+    CACHE = "cache"      # Return last cached response for this hook
+    CASCADE = "cascade"  # Try cheaper models before giving up
 
 
 class HookStatus(Enum):

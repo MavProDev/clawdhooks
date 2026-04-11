@@ -6,6 +6,8 @@ def test_fallback_strategy_values():
     assert FallbackStrategy.DEFAULT.value == "default"
     assert FallbackStrategy.RAISE.value == "raise"
     assert FallbackStrategy.LOCAL.value == "local"
+    assert FallbackStrategy.CACHE.value == "cache"
+    assert FallbackStrategy.CASCADE.value == "cascade"
 
 
 def test_hook_status_values():
