@@ -11,6 +11,17 @@ from .exceptions import (
     HookValidationError,
     HookProviderError,
 )
+from .pii import PIIFilter
+from .cache import HookCache
+from .telemetry import HookTelemetry
+from .budget import BudgetTracker
+from .circuit import CircuitBreaker, CircuitState
+
+# OpenAI provider — optional, requires: pip install claude-hooks[openai]
+try:
+    from .providers.openai import OpenAIProvider
+except ImportError:
+    OpenAIProvider = None  # type: ignore[assignment,misc]
 
 __version__ = "0.1.0"
 
@@ -26,10 +37,20 @@ __all__ = [
     "LLMProvider",
     "LLMResponse",
     "ClaudeProvider",
+    "OpenAIProvider",
     # Exceptions
     "HookError",
     "HookTimeoutError",
     "HookBudgetError",
     "HookValidationError",
     "HookProviderError",
+    # Advanced features
+    "PIIFilter",
+    "HookCache",
+    "HookTelemetry",
+    "BudgetTracker",
+    "CircuitBreaker",
+    "CircuitState",
+    # Version
+    "__version__",
 ]
