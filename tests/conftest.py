@@ -2,6 +2,30 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 from claude_hooks.providers.base import LLMProvider, LLMResponse
+from claude_hooks.telemetry import HAS_OTEL
+
+# Set up a single global OTel provider for all tests.
+# OTel 1.20+ only allows setting the provider once per process.
+# We use a shared InMemorySpanExporter and reset it between tests.
+if HAS_OTEL:
+    from opentelemetry.sdk.trace import TracerProvider as _TracerProvider
+    from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter as _InMemorySpanExporter
+    from opentelemetry.sdk.trace.export import SimpleSpanProcessor as _SimpleSpanProcessor
+    import opentelemetry.trace as _otel_trace
+
+    _shared_otel_exporter = _InMemorySpanExporter()
+    _shared_otel_provider = _TracerProvider()
+    _shared_otel_provider.add_span_processor(_SimpleSpanProcessor(_shared_otel_exporter))
+    _otel_trace.set_tracer_provider(_shared_otel_provider)
+
+
+@pytest.fixture
+def otel_exporter():
+    """Provide a fresh (cleared) InMemorySpanExporter for each test."""
+    if not HAS_OTEL:
+        pytest.skip("opentelemetry not installed")
+    _shared_otel_exporter.clear()
+    return _shared_otel_exporter
 
 
 class MockProvider(LLMProvider):
