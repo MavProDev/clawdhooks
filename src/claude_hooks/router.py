@@ -26,6 +26,7 @@ from .exceptions import (
     HookValidationError,
 )
 from .fallbacks import resolve_fallback_async
+from .pii import PIIFilter
 from .providers.base import LLMProvider, LLMResponse
 from .telemetry import HookTelemetry
 from .types import FallbackStrategy, HookConfig, HookStatus
@@ -116,6 +117,8 @@ class HookRouter:
         cache_ttl_seconds: float = 300.0,
         # Telemetry params
         telemetry_enabled: bool = False,
+        # PII filtering
+        pii_filter: bool = False,
     ):
         if provider is not None:
             self._provider = provider
@@ -141,6 +144,7 @@ class HookRouter:
         self._caches: dict[str, HookCache] = {}
         self._registry_lock = threading.Lock()
         self._telemetry = HookTelemetry(enabled=telemetry_enabled)
+        self._pii_filter = PIIFilter() if pii_filter else None
 
     @property
     def provider(self) -> LLMProvider:
@@ -287,6 +291,11 @@ class HookRouter:
                 default_response=config.default_response,
             )
 
+        # PII filtering (anonymize before sending to LLM)
+        pii_mapping: dict[str, str] | None = None
+        if self._pii_filter:
+            user_message, pii_mapping = self._pii_filter.anonymize(user_message)
+
         span = self._telemetry.start_span(config.name, resolved_model)
         try:
             last_error: Exception | None = None
@@ -370,6 +379,13 @@ class HookRouter:
                         raise HookValidationError(
                             str(validation_err), raw_response=response.raw_text
                         ) from validation_err
+                    # Deanonymize string fields in result
+                    if self._pii_filter and pii_mapping:
+                        for field_name in type(result).model_fields:
+                            value = getattr(result, field_name)
+                            if isinstance(value, str):
+                                deaned = self._pii_filter.deanonymize(value, pii_mapping)
+                                object.__setattr__(result, field_name, deaned)
                     # Record in budget and circuit
                     circuit = self._get_circuit(config.name)
                     circuit.record_success()
@@ -414,6 +430,13 @@ class HookRouter:
                     if cached is not None:
                         try:
                             result = output_model.model_validate(cached)
+                            # Deanonymize string fields in cache fallback result
+                            if self._pii_filter and pii_mapping:
+                                for field_name in type(result).model_fields:
+                                    value = getattr(result, field_name)
+                                    if isinstance(value, str):
+                                        deaned = self._pii_filter.deanonymize(value, pii_mapping)
+                                        object.__setattr__(result, field_name, deaned)
                             ctx.record_fallback("cache", reason=f"cache fallback: {last_error}")
                             self._record_stats(ctx)
                             return result
@@ -433,6 +456,13 @@ class HookRouter:
                     ctx=ctx,
                 )
                 if cascade_result is not None:
+                    # Deanonymize string fields in cascade result
+                    if self._pii_filter and pii_mapping:
+                        for field_name in type(cascade_result).model_fields:
+                            value = getattr(cascade_result, field_name)
+                            if isinstance(value, str):
+                                deaned = self._pii_filter.deanonymize(value, pii_mapping)
+                                object.__setattr__(cascade_result, field_name, deaned)
                     return cascade_result
                 ctx.record_fallback("cascade", reason=f"all models failed: {last_error}")
                 self._record_stats(ctx)
