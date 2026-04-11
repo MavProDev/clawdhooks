@@ -23,6 +23,7 @@ from .exceptions import (
 )
 from .fallbacks import resolve_fallback_async
 from .providers.base import LLMProvider, LLMResponse
+from .telemetry import HookTelemetry
 from .types import FallbackStrategy, HookConfig, HookStatus
 
 T = TypeVar("T")
@@ -100,6 +101,8 @@ class HookRouter:
         cache_enabled: bool = False,
         cache_max_size: int = 128,
         cache_ttl_seconds: float = 300.0,
+        # Telemetry params
+        telemetry_enabled: bool = False,
     ):
         if provider is not None:
             self._provider = provider
@@ -122,6 +125,7 @@ class HookRouter:
         self._cache_max_size = cache_max_size
         self._cache_ttl_seconds = cache_ttl_seconds
         self._caches: dict[str, HookCache] = {}
+        self._telemetry = HookTelemetry(enabled=telemetry_enabled)
 
     @property
     def provider(self) -> LLMProvider:
@@ -245,163 +249,168 @@ class HookRouter:
         timeout = config.timeout_seconds or self._provider.model_timeout(resolved_model)
         ctx = HookContext(hook_name=config.name, model=resolved_model)
         user_message = _serialize_input(bound_func, args, kwargs)
-        last_error: Exception | None = None
-        attempts = 1 + config.max_retries
 
-        # Cache check (before any gates or API calls)
-        if self._cache_enabled:
-            cache = self._get_cache(config.name)
-            cached = cache.get(user_message)
-            if cached is not None:
-                try:
-                    result = output_model.model_validate(cached)
-                    ctx.record_fallback("cache", reason="cache hit")
-                    self._record_stats(ctx)
-                    return result
-                except Exception:
-                    pass  # Invalid cache entry, proceed normally
+        span = self._telemetry.start_span(config.name, resolved_model)
+        try:
+            last_error: Exception | None = None
+            attempts = 1 + config.max_retries
 
-        # Gate: Budget check
-        if not self._budget.check(config.name):
-            error = HookBudgetError(
-                f"Hook '{config.name}' is over budget",
-                hook_name=config.name,
-                limit=self._budget._calls_per_hour or 0,
-                current=0,
-            )
-            ctx.record_fallback(config.fallback.value, reason=str(error))
-            self._record_stats(ctx)
-            return await resolve_fallback_async(
-                strategy=config.fallback,
-                error=error,
-                original_func=original_func,
-                args=args,
-                kwargs=kwargs,
-                default_response=config.default_response,
-            )
-
-        # Gate: Circuit breaker check
-        circuit = self._get_circuit(config.name)
-        if not circuit.should_allow():
-            error = HookProviderError(
-                f"Circuit breaker open for hook '{config.name}'",
-                provider=self._provider.name,
-            )
-            ctx.record_fallback(config.fallback.value, reason=str(error))
-            self._record_stats(ctx)
-            return await resolve_fallback_async(
-                strategy=config.fallback,
-                error=error,
-                original_func=original_func,
-                args=args,
-                kwargs=kwargs,
-                default_response=config.default_response,
-            )
-
-        for attempt in range(attempts):
-            try:
-                response = await asyncio.wait_for(
-                    self._provider.complete(
-                        system_prompt=config.system_prompt,
-                        user_message=user_message,
-                        output_schema=output_schema,
-                        model=resolved_model,
-                        timeout_seconds=timeout,
-                    ),
-                    timeout=timeout,
-                )
-                ctx.record_response(response)
-                try:
-                    result = output_model.model_validate(response.content)
-                except Exception as validation_err:
-                    if attempt < attempts - 1:
-                        ctx.retries += 1
-                        last_error = HookValidationError(
-                            str(validation_err), raw_response=response.raw_text
-                        )
-                        continue
-                    raise HookValidationError(
-                        str(validation_err), raw_response=response.raw_text
-                    ) from validation_err
-                # Record in budget and circuit
-                circuit = self._get_circuit(config.name)
-                circuit.record_success()
-                self._budget.record(
-                    config.name,
-                    input_tokens=response.input_tokens,
-                    output_tokens=response.output_tokens,
-                    cost_usd=response.cost_usd,
-                )
-                # Cache the successful response
-                if self._cache_enabled:
-                    self._get_cache(config.name).put(user_message, response.content)
-                self._record_stats(ctx)
-                return result
-            except asyncio.TimeoutError:
-                last_error = HookTimeoutError(
-                    f"Hook '{config.name}' timed out after {timeout}s",
-                    timeout_seconds=timeout,
-                )
-                if attempt < attempts - 1:
-                    ctx.retries += 1
-                    continue
-            except (HookValidationError, HookError) as e:
-                last_error = e
-                if attempt < attempts - 1:
-                    ctx.retries += 1
-                    continue
-            except Exception as e:
-                last_error = HookProviderError(str(e), provider=self._provider.name)
-                if attempt < attempts - 1:
-                    ctx.retries += 1
-                    continue
-
-        circuit = self._get_circuit(config.name)
-        circuit.record_failure()
-
-        # Special fallback: CACHE — return most recent cached response
-        if config.fallback == FallbackStrategy.CACHE:
+            # Cache check (before any gates or API calls)
             if self._cache_enabled:
                 cache = self._get_cache(config.name)
-                cached = cache.get_latest()
+                cached = cache.get(user_message)
                 if cached is not None:
                     try:
                         result = output_model.model_validate(cached)
-                        ctx.record_fallback("cache", reason=f"cache fallback: {last_error}")
+                        ctx.record_fallback("cache", reason="cache hit")
                         self._record_stats(ctx)
                         return result
                     except Exception:
-                        pass
-            ctx.record_fallback("cache", reason=f"no cache available: {last_error}")
-            self._record_stats(ctx)
-            return None
+                        pass  # Invalid cache entry, proceed normally
 
-        # Special fallback: CASCADE — try cheaper models
-        if config.fallback == FallbackStrategy.CASCADE:
-            cascade_result = await self._try_cascade(
-                config=config,
-                output_model=output_model,
-                output_schema=output_schema,
-                user_message=user_message,
-                ctx=ctx,
+            # Gate: Budget check
+            if not self._budget.check(config.name):
+                error = HookBudgetError(
+                    f"Hook '{config.name}' is over budget",
+                    hook_name=config.name,
+                    limit=self._budget._calls_per_hour or 0,
+                    current=0,
+                )
+                ctx.record_fallback(config.fallback.value, reason=str(error))
+                self._record_stats(ctx)
+                return await resolve_fallback_async(
+                    strategy=config.fallback,
+                    error=error,
+                    original_func=original_func,
+                    args=args,
+                    kwargs=kwargs,
+                    default_response=config.default_response,
+                )
+
+            # Gate: Circuit breaker check
+            circuit = self._get_circuit(config.name)
+            if not circuit.should_allow():
+                error = HookProviderError(
+                    f"Circuit breaker open for hook '{config.name}'",
+                    provider=self._provider.name,
+                )
+                ctx.record_fallback(config.fallback.value, reason=str(error))
+                self._record_stats(ctx)
+                return await resolve_fallback_async(
+                    strategy=config.fallback,
+                    error=error,
+                    original_func=original_func,
+                    args=args,
+                    kwargs=kwargs,
+                    default_response=config.default_response,
+                )
+
+            for attempt in range(attempts):
+                try:
+                    response = await asyncio.wait_for(
+                        self._provider.complete(
+                            system_prompt=config.system_prompt,
+                            user_message=user_message,
+                            output_schema=output_schema,
+                            model=resolved_model,
+                            timeout_seconds=timeout,
+                        ),
+                        timeout=timeout,
+                    )
+                    ctx.record_response(response)
+                    try:
+                        result = output_model.model_validate(response.content)
+                    except Exception as validation_err:
+                        if attempt < attempts - 1:
+                            ctx.retries += 1
+                            last_error = HookValidationError(
+                                str(validation_err), raw_response=response.raw_text
+                            )
+                            continue
+                        raise HookValidationError(
+                            str(validation_err), raw_response=response.raw_text
+                        ) from validation_err
+                    # Record in budget and circuit
+                    circuit = self._get_circuit(config.name)
+                    circuit.record_success()
+                    self._budget.record(
+                        config.name,
+                        input_tokens=response.input_tokens,
+                        output_tokens=response.output_tokens,
+                        cost_usd=response.cost_usd,
+                    )
+                    # Cache the successful response
+                    if self._cache_enabled:
+                        self._get_cache(config.name).put(user_message, response.content)
+                    self._record_stats(ctx)
+                    return result
+                except asyncio.TimeoutError:
+                    last_error = HookTimeoutError(
+                        f"Hook '{config.name}' timed out after {timeout}s",
+                        timeout_seconds=timeout,
+                    )
+                    if attempt < attempts - 1:
+                        ctx.retries += 1
+                        continue
+                except (HookValidationError, HookError) as e:
+                    last_error = e
+                    if attempt < attempts - 1:
+                        ctx.retries += 1
+                        continue
+                except Exception as e:
+                    last_error = HookProviderError(str(e), provider=self._provider.name)
+                    if attempt < attempts - 1:
+                        ctx.retries += 1
+                        continue
+
+            circuit = self._get_circuit(config.name)
+            circuit.record_failure()
+
+            # Special fallback: CACHE — return most recent cached response
+            if config.fallback == FallbackStrategy.CACHE:
+                if self._cache_enabled:
+                    cache = self._get_cache(config.name)
+                    cached = cache.get_latest()
+                    if cached is not None:
+                        try:
+                            result = output_model.model_validate(cached)
+                            ctx.record_fallback("cache", reason=f"cache fallback: {last_error}")
+                            self._record_stats(ctx)
+                            return result
+                        except Exception:
+                            pass
+                ctx.record_fallback("cache", reason=f"no cache available: {last_error}")
+                self._record_stats(ctx)
+                return None
+
+            # Special fallback: CASCADE — try cheaper models
+            if config.fallback == FallbackStrategy.CASCADE:
+                cascade_result = await self._try_cascade(
+                    config=config,
+                    output_model=output_model,
+                    output_schema=output_schema,
+                    user_message=user_message,
+                    ctx=ctx,
+                )
+                if cascade_result is not None:
+                    return cascade_result
+                ctx.record_fallback("cascade", reason=f"all models failed: {last_error}")
+                self._record_stats(ctx)
+                return None
+
+            # Standard fallbacks: skip, default, raise, local
+            ctx.record_fallback(config.fallback.value, reason=str(last_error))
+            self._record_stats(ctx)
+            return await resolve_fallback_async(
+                strategy=config.fallback,
+                error=last_error,
+                original_func=original_func,
+                args=args,
+                kwargs=kwargs,
+                default_response=config.default_response,
             )
-            if cascade_result is not None:
-                return cascade_result
-            ctx.record_fallback("cascade", reason=f"all models failed: {last_error}")
-            self._record_stats(ctx)
-            return None
-
-        # Standard fallbacks: skip, default, raise, local
-        ctx.record_fallback(config.fallback.value, reason=str(last_error))
-        self._record_stats(ctx)
-        return await resolve_fallback_async(
-            strategy=config.fallback,
-            error=last_error,
-            original_func=original_func,
-            args=args,
-            kwargs=kwargs,
-            default_response=config.default_response,
-        )
+        finally:
+            self._telemetry.end_span(span, ctx)
 
     async def _try_cascade(
         self,

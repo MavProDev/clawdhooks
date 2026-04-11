@@ -27,25 +27,6 @@ def test_telemetry_end_span_noop_when_disabled():
     t.end_span(span, ctx)
 
 
-if HAS_OTEL:
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
-    from opentelemetry.sdk.trace.export import SimpleSpanProcessor
-    import opentelemetry.trace
-
-    # Set up a single global provider for all OTel tests — OTel 1.20+ only allows
-    # setting the provider once per process. We use a shared InMemorySpanExporter
-    # and reset it between tests.
-    _otel_exporter = InMemorySpanExporter()
-    _otel_provider = TracerProvider()
-    _otel_provider.add_span_processor(SimpleSpanProcessor(_otel_exporter))
-    opentelemetry.trace.set_tracer_provider(_otel_provider)
-
-    @pytest.fixture(autouse=False)
-    def otel_exporter():
-        """Provide a fresh (cleared) InMemorySpanExporter for each test."""
-        _otel_exporter.clear()
-        return _otel_exporter
 
 
 @pytest.mark.skipif(not HAS_OTEL, reason="opentelemetry not installed")
