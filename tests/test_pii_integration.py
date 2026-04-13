@@ -21,7 +21,7 @@ async def test_pii_filter_anonymizes_input(mock_provider, make_response):
         """Analyze this text."""
         ...
 
-    result = await analyze("Contact john@example.com for details")
+    await analyze("Contact john@example.com for details")
 
     # Verify the API received anonymized input
     call = mock_provider._calls[0]

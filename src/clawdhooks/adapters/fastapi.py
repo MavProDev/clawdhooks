@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 try:
     from starlette.middleware.base import BaseHTTPMiddleware
     from starlette.requests import Request
-    from starlette.responses import Response
 
     class ClawdHooksMiddleware(BaseHTTPMiddleware):
         """Starlette/FastAPI middleware that attaches a HookRouter to request state.
