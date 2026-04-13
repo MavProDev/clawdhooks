@@ -24,6 +24,10 @@ class CircuitBreaker:
     """
 
     def __init__(self, *, failure_threshold: int = 5, recovery_timeout: float = 30.0):
+        if failure_threshold < 1:
+            raise ValueError(f"failure_threshold must be >= 1, got {failure_threshold}")
+        if recovery_timeout <= 0:
+            raise ValueError(f"recovery_timeout must be > 0, got {recovery_timeout}")
         self._failure_threshold = failure_threshold
         self._recovery_timeout = recovery_timeout
         self._state = CircuitState.CLOSED

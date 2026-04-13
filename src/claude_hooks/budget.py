@@ -27,6 +27,12 @@ class BudgetTracker:
         tokens_per_hour: int | None = None,
         global_max_cost_per_hour: float | None = None,
     ):
+        if calls_per_hour is not None and calls_per_hour <= 0:
+            raise ValueError(f"calls_per_hour must be positive, got {calls_per_hour}")
+        if tokens_per_hour is not None and tokens_per_hour <= 0:
+            raise ValueError(f"tokens_per_hour must be positive, got {tokens_per_hour}")
+        if global_max_cost_per_hour is not None and global_max_cost_per_hour <= 0:
+            raise ValueError(f"global_max_cost_per_hour must be positive, got {global_max_cost_per_hour}")
         self._calls_per_hour = calls_per_hour
         self._tokens_per_hour = tokens_per_hour
         self._global_max_cost_per_hour = global_max_cost_per_hour
@@ -49,7 +55,10 @@ class BudgetTracker:
 
     def record(self, hook_name: str, *, input_tokens: int, output_tokens: int, cost_usd: float) -> None:
         now = time.monotonic()
+        cutoff = now - 3600
         with self._lock:
+            self._prune(cutoff, hook_name)
+            self._prune_global(cutoff)
             window = self._get_window(hook_name)
             window.calls.append(now)
             window.tokens.append((now, input_tokens + output_tokens))

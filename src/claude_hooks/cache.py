@@ -16,14 +16,18 @@ class HookCache:
     """
 
     def __init__(self, *, max_size: int = 128, ttl_seconds: float = 300.0):
+        if max_size < 1:
+            raise ValueError(f"max_size must be >= 1, got {max_size}")
+        if ttl_seconds <= 0:
+            raise ValueError(f"ttl_seconds must be > 0, got {ttl_seconds}")
         self._max_size = max_size
         self._ttl = ttl_seconds
         self._cache: OrderedDict[str, tuple[float, Any]] = OrderedDict()
         self._lock = threading.Lock()
 
     def _make_key(self, input_data: str) -> str:
-        normalized = input_data.strip().lower()
-        return hashlib.sha256(normalized.encode()).hexdigest()[:16]
+        normalized = input_data.strip()
+        return hashlib.sha256(normalized.encode()).hexdigest()
 
     def get(self, input_data: str) -> Any | None:
         key = self._make_key(input_data)

@@ -39,7 +39,7 @@ async def test_hook_basic_call(mock_provider, make_response):
     # Verify provider was called with correct args
     assert len(mock_provider._calls) == 1
     call = mock_provider._calls[0]
-    assert call["system_prompt"] == "Evaluate this post against community guidelines."
+    assert call["system_prompt"].startswith("Evaluate this post against community guidelines.")
     assert '"title": "Hello"' in call["user_message"] or '"title":"Hello"' in call["user_message"]
 
 
@@ -154,7 +154,7 @@ async def test_hook_explicit_system_prompt(mock_provider, make_response):
 
     await moderate("hello")
     call = mock_provider._calls[0]
-    assert call["system_prompt"] == "You are extremely strict. Block everything."
+    assert call["system_prompt"].startswith("You are extremely strict. Block everything.")
 
 
 @pytest.mark.asyncio

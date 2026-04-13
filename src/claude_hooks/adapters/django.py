@@ -1,7 +1,10 @@
 """Django middleware integration for claude-hooks."""
 from __future__ import annotations
 
+import logging
 from typing import Any, Callable
+
+logger = logging.getLogger(__name__)
 
 
 class ClaudeHooksMiddleware:
@@ -29,8 +32,13 @@ class ClaudeHooksMiddleware:
             try:
                 from django.conf import settings
                 self._router = getattr(settings, "CLAUDE_HOOKS_ROUTER", None)
+                if self._router is None:
+                    logger.warning(
+                        "CLAUDE_HOOKS_ROUTER not found in Django settings. "
+                        "Claude hooks will not be available."
+                    )
             except ImportError:
-                pass
+                logger.error("Django not available — cannot load CLAUDE_HOOKS_ROUTER")
         return self._router
 
     def __call__(self, request: Any) -> Any:
