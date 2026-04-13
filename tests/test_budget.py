@@ -1,6 +1,4 @@
-import time
-import pytest
-from claudehooks.budget import BudgetTracker
+from clawdhooks.budget import BudgetTracker
 
 
 def test_budget_tracker_allows_under_limit():

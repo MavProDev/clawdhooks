@@ -23,7 +23,7 @@ assignees: ''
 
 ## Environment
 
-- **claudehooks version**: <!-- e.g. 0.1.0 (check with `pip show claudehooks`) -->
+- **clawdhooks version**: <!-- e.g. 0.1.0 (check with `pip show clawdhooks`) -->
 - **Python version**: <!-- e.g. 3.12.1 -->
 - **OS**: <!-- e.g. Ubuntu 22.04 / macOS 14 / Windows 11 -->
 - **Provider**: <!-- Claude / OpenAI / both -->

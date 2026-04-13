@@ -1,11 +1,11 @@
-# claudehooks
+# clawdhooks
 
 ### Turn any Python function into a Claude-powered function. No plumbing. No boilerplate. One decorator.
 
-[![PyPI version](https://img.shields.io/pypi/v/claudehooks.svg)](https://pypi.org/project/claudehooks/)
-[![Python versions](https://img.shields.io/pypi/pyversions/claudehooks.svg)](https://pypi.org/project/claudehooks/)
+[![PyPI version](https://img.shields.io/pypi/v/clawdhooks.svg)](https://pypi.org/project/clawdhooks/)
+[![Python versions](https://img.shields.io/pypi/pyversions/clawdhooks.svg)](https://pypi.org/project/clawdhooks/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/MavProDev/claudehooks/actions/workflows/ci.yml/badge.svg)](https://github.com/MavProDev/claudehooks/actions/workflows/ci.yml)
+[![CI](https://github.com/MavProDev/clawdhooks/actions/workflows/ci.yml/badge.svg)](https://github.com/MavProDev/clawdhooks/actions/workflows/ci.yml)
 
 ---
 
@@ -17,12 +17,12 @@
 
 ## 🎯 What problem does this solve?
 
-You have a real app — a web service, a pipeline, a background worker — and you want to add AI decisions (classify this, moderate that, extract from this, route that) **without rewriting your app around an LLM**. claudehooks drops Claude into the functions you already have, with all the production stuff (cost caps, rate limits, retries, caching, PII filtering, observability) handled for you.
+You have a real app — a web service, a pipeline, a background worker — and you want to add AI decisions (classify this, moderate that, extract from this, route that) **without rewriting your app around an LLM**. clawdhooks drops Claude into the functions you already have, with all the production stuff (cost caps, rate limits, retries, caching, PII filtering, observability) handled for you.
 
 ## 📦 Install
 
 ```bash
-pip install claudehooks
+pip install clawdhooks
 ```
 
 That's it. No config files. No service to run. No infrastructure to set up.
@@ -30,7 +30,7 @@ That's it. No config files. No service to run. No infrastructure to set up.
 ## ⚡ The 10-second example
 
 ```python
-from claudehooks import HookRouter
+from clawdhooks import HookRouter
 
 router = HookRouter(api_key="sk-ant-...")
 
@@ -57,7 +57,7 @@ Python developers who want to add AI decision-making to existing applications **
 ```python
 import os
 from pydantic import BaseModel
-from claudehooks import HookRouter
+from clawdhooks import HookRouter
 
 router = HookRouter(api_key=os.environ["ANTHROPIC_API_KEY"])
 
@@ -164,7 +164,7 @@ router = HookRouter(
 Use `BudgetTracker` directly for custom integrations:
 
 ```python
-from claudehooks import BudgetTracker
+from clawdhooks import BudgetTracker
 
 tracker = BudgetTracker(calls_per_hour=100, global_max_cost_per_hour=2.0)
 if tracker.check("my_hook"):
@@ -187,7 +187,7 @@ router = HookRouter(
 States: `CLOSED` (normal) → `OPEN` (all fallback) → `HALF_OPEN` (one probe) → `CLOSED`.
 
 ```python
-from claudehooks import CircuitBreaker, CircuitState
+from clawdhooks import CircuitBreaker, CircuitState
 
 cb = CircuitBreaker(failure_threshold=3, recovery_timeout=60.0)
 if cb.should_allow():
@@ -224,7 +224,7 @@ async def analyze(text: str) -> Analysis:
 Use `HookCache` directly:
 
 ```python
-from claudehooks import HookCache
+from clawdhooks import HookCache
 
 cache = HookCache(max_size=128, ttl_seconds=300.0)
 cache.put("input text", {"label": "spam"})
@@ -265,10 +265,10 @@ Metrics emitted:
 - `hook.tokens` — cumulative token counter
 - `hook.fallback_count` — fallback invocation counter
 
-Requires: `pip install claudehooks[telemetry]`. Degrades to no-op when not installed.
+Requires: `pip install clawdhooks[telemetry]`. Degrades to no-op when not installed.
 
 ```python
-from claudehooks import HookTelemetry
+from clawdhooks import HookTelemetry
 
 telemetry = HookTelemetry(enabled=True)
 span = telemetry.start_span("my_hook", "claude-haiku-3")
@@ -281,7 +281,7 @@ telemetry.end_span(span, ctx)
 Anonymize sensitive data before it leaves your system. PII tokens are replaced before the API call and restored in the response.
 
 ```python
-from claudehooks import PIIFilter
+from clawdhooks import PIIFilter
 
 f = PIIFilter()
 anonymized, mapping = f.anonymize("Contact john@example.com or call 555-123-4567")
@@ -294,14 +294,14 @@ restored = f.deanonymize(anonymized, mapping)
 
 Detects: email addresses, phone numbers, SSNs, credit card numbers. Uses [Microsoft Presidio](https://microsoft.github.io/presidio/) when installed for broader coverage (50+ entity types), falls back to regex otherwise.
 
-Requires: `pip install claudehooks[pii]` for Presidio. Regex detection works without it.
+Requires: `pip install clawdhooks[pii]` for Presidio. Regex detection works without it.
 
 ### Multi-Provider
 
 Claude is the default. OpenAI GPT models are supported via the same decorator interface.
 
 ```python
-from claudehooks import HookRouter, OpenAIProvider
+from clawdhooks import HookRouter, OpenAIProvider
 
 openai_provider = OpenAIProvider(api_key=os.environ["OPENAI_API_KEY"])
 router = HookRouter(provider=openai_provider)
@@ -317,7 +317,7 @@ Supported OpenAI models: `gpt4o`, `gpt4o-mini`, `o3`, `o3-mini`.
 Implement `LLMProvider` to add any other model:
 
 ```python
-from claudehooks import LLMProvider, LLMResponse
+from clawdhooks import LLMProvider, LLMResponse
 
 class MyProvider(LLMProvider):
     @property
@@ -336,10 +336,10 @@ class MyProvider(LLMProvider):
 
 ```python
 from fastapi import FastAPI, Depends
-from claudehooks.adapters.fastapi import ClaudeHooksMiddleware, get_router
+from clawdhooks.adapters.fastapi import ClawdHooksMiddleware, get_router
 
 app = FastAPI()
-app.add_middleware(ClaudeHooksMiddleware, router=router)
+app.add_middleware(ClawdHooksMiddleware, router=router)
 
 @app.get("/stats")
 async def stats(router=Depends(get_router)):
@@ -350,23 +350,23 @@ async def stats(router=Depends(get_router)):
 
 ```python
 # settings.py
-from claudehooks import HookRouter
+from clawdhooks import HookRouter
 CLAUDE_HOOKS_ROUTER = HookRouter(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 MIDDLEWARE = [
     ...
-    "claudehooks.adapters.django.ClaudeHooksMiddleware",
+    "clawdhooks.adapters.django.ClawdHooksMiddleware",
 ]
 
 # views.py
 def my_view(request):
-    router = request.claudehooks_router
+    router = request.clawdhooks_router
 ```
 
 **Celery** — wrap tasks with `hook_task` for sync execution in workers:
 
 ```python
-from claudehooks.adapters.celery import hook_task
+from clawdhooks.adapters.celery import hook_task
 
 @hook_task(router, model="haiku", fallback="local")
 def process_ticket(ticket: SupportTicket) -> TriageResult:
@@ -416,10 +416,10 @@ Four working examples are included in `/examples`:
 ## Optional Dependencies
 
 ```bash
-pip install claudehooks[telemetry]   # OpenTelemetry spans + metrics
-pip install claudehooks[pii]         # PII filtering via Microsoft Presidio
-pip install claudehooks[openai]      # OpenAI GPT provider
-pip install claudehooks[fastapi]     # FastAPI/Starlette middleware adapter
+pip install clawdhooks[telemetry]   # OpenTelemetry spans + metrics
+pip install clawdhooks[pii]         # PII filtering via Microsoft Presidio
+pip install clawdhooks[openai]      # OpenAI GPT provider
+pip install clawdhooks[fastapi]     # FastAPI/Starlette middleware adapter
 ```
 
 ## Requirements

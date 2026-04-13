@@ -1,6 +1,5 @@
-import pytest
-from claudehooks.context import HookContext
-from claudehooks.types import HookStatus
+from clawdhooks.context import HookContext
+from clawdhooks.types import HookStatus
 
 
 def test_context_creation():

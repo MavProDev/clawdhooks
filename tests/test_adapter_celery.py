@@ -1,6 +1,6 @@
 import pytest
 from pydantic import BaseModel
-from claudehooks.adapters.celery import hook_task
+from clawdhooks.adapters.celery import hook_task
 
 
 class TaskResult(BaseModel):
@@ -13,7 +13,7 @@ def test_hook_task_decorator_exists():
 
 
 def test_hook_task_registers_hook(mock_provider, make_response):
-    from claudehooks import HookRouter
+    from clawdhooks import HookRouter
 
     mock_provider._responses = [
         make_response(content={"status": "done", "message": "processed"})
@@ -29,7 +29,7 @@ def test_hook_task_registers_hook(mock_provider, make_response):
 
 
 def test_hook_task_sync_call(mock_provider, make_response):
-    from claudehooks import HookRouter
+    from clawdhooks import HookRouter
 
     mock_provider._responses = [
         make_response(content={"status": "done", "message": "processed"})
@@ -47,7 +47,7 @@ def test_hook_task_sync_call(mock_provider, make_response):
 
 
 def test_hook_task_fallback(mock_provider):
-    from claudehooks import HookRouter
+    from clawdhooks import HookRouter
 
     mock_provider._responses = [Exception("fail")]
     router = HookRouter(provider=mock_provider)
@@ -64,7 +64,7 @@ def test_hook_task_fallback(mock_provider):
 
 @pytest.mark.asyncio
 async def test_hook_task_async_access(mock_provider, make_response):
-    from claudehooks import HookRouter
+    from clawdhooks import HookRouter
 
     mock_provider._responses = [
         make_response(content={"status": "done", "message": "async"})

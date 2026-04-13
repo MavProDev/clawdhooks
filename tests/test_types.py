@@ -1,4 +1,4 @@
-from claudehooks.types import FallbackStrategy, HookStatus, HookConfig
+from clawdhooks.types import FallbackStrategy, HookStatus, HookConfig
 
 
 def test_fallback_strategy_values():

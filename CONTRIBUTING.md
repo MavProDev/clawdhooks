@@ -1,4 +1,4 @@
-# Contributing to claudehooks
+# Contributing to clawdhooks
 
 Thanks for your interest in contributing! This document covers how to set up a dev environment, run the tests, and submit changes.
 
@@ -6,8 +6,8 @@ Thanks for your interest in contributing! This document covers how to set up a d
 
 ```bash
 # 1. Fork and clone
-git clone https://github.com/YOUR_USERNAME/claudehooks.git
-cd claudehooks
+git clone https://github.com/YOUR_USERNAME/clawdhooks.git
+cd clawdhooks
 
 # 2. Create a virtual environment (Python 3.11+)
 python -m venv .venv
@@ -27,7 +27,7 @@ If `pytest` passes and `ruff` is clean, you're ready to go.
 
 ```bash
 # Full test suite with coverage
-pytest --cov=claudehooks --cov-report=term-missing
+pytest --cov=clawdhooks --cov-report=term-missing
 
 # A single file
 pytest tests/test_router.py -v

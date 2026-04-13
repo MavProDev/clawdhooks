@@ -1,8 +1,8 @@
 """Phase 4 Task 2: Telemetry wired into HookRouter."""
 import pytest
 from pydantic import BaseModel
-from claudehooks.router import HookRouter
-from claudehooks.telemetry import HAS_OTEL
+from clawdhooks.router import HookRouter
+from clawdhooks.telemetry import HAS_OTEL
 
 
 class Result(BaseModel):

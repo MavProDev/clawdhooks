@@ -3,16 +3,16 @@ requires = ["hatchling>=1.21,<2.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "claudehooks"
+name = "clawdhooks"
 version = "0.1.0"
 description = "Add Claude as middleware to any Python app with a single decorator"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 authors = [
-    { name = "MavPro Group LLC" },
+    { name = "ReelDad" },
 ]
-keywords = ["claude", "anthropic", "llm", "middleware", "decorator", "ai", "claudehooks"]
+keywords = ["claude", "anthropic", "llm", "middleware", "decorator", "ai", "clawdhooks"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -58,13 +58,13 @@ telemetry = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/MavProDev/claudehooks"
-Documentation = "https://github.com/MavProDev/claudehooks#readme"
-Repository = "https://github.com/MavProDev/claudehooks"
-Issues = "https://github.com/MavProDev/claudehooks/issues"
+Homepage = "https://github.com/MavProDev/clawdhooks"
+Documentation = "https://github.com/MavProDev/clawdhooks#readme"
+Repository = "https://github.com/MavProDev/clawdhooks"
+Issues = "https://github.com/MavProDev/clawdhooks/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/claudehooks"]
+packages = ["src/clawdhooks"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

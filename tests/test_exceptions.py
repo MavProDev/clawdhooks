@@ -1,4 +1,4 @@
-from claudehooks.exceptions import (
+from clawdhooks.exceptions import (
     HookError,
     HookTimeoutError,
     HookBudgetError,

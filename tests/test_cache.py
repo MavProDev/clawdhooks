@@ -1,6 +1,5 @@
 import time
-import pytest
-from claudehooks.cache import HookCache
+from clawdhooks.cache import HookCache
 
 
 def test_cache_miss_returns_none():

@@ -1,5 +1,4 @@
-import pytest
-from claudehooks.pii import PIIFilter
+from clawdhooks.pii import PIIFilter
 
 
 def test_pii_filter_creation():

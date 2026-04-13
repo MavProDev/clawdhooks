@@ -14,7 +14,7 @@ import os
 
 from pydantic import BaseModel
 
-from claudehooks import HookRouter
+from clawdhooks import HookRouter
 
 
 class InvoiceData(BaseModel):
