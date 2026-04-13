@@ -1,5 +1,5 @@
 import pytest
-from claudehooks.adapters.fastapi import ClaudeHooksMiddleware, get_router
+from clawdhooks.adapters.fastapi import ClawdHooksMiddleware, get_router
 
 try:
     from fastapi import FastAPI
@@ -11,7 +11,7 @@ except ImportError:
 
 
 def test_middleware_class_exists():
-    assert ClaudeHooksMiddleware is not None
+    assert ClawdHooksMiddleware is not None
 
 
 def test_get_router_exists():
@@ -20,13 +20,13 @@ def test_get_router_exists():
 
 @pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed")
 def test_middleware_attaches_router(mock_provider, make_response):
-    from claudehooks import HookRouter
+    from clawdhooks import HookRouter
 
     mock_provider._responses = [make_response(content={"sentiment": "positive", "score": 0.9})]
     router = HookRouter(provider=mock_provider)
 
     app = FastAPI()
-    app.add_middleware(ClaudeHooksMiddleware, router=router)
+    app.add_middleware(ClawdHooksMiddleware, router=router)
 
     class SentimentResult(BaseModel):
         sentiment: str
@@ -51,13 +51,13 @@ def test_middleware_attaches_router(mock_provider, make_response):
 
 @pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed")
 def test_middleware_handles_hook_errors(mock_provider):
-    from claudehooks import HookRouter
+    from clawdhooks import HookRouter
 
     mock_provider._responses = [Exception("API down")]
     router = HookRouter(provider=mock_provider)
 
     app = FastAPI()
-    app.add_middleware(ClaudeHooksMiddleware, router=router)
+    app.add_middleware(ClawdHooksMiddleware, router=router)
 
     class Result(BaseModel):
         answer: str
@@ -82,13 +82,13 @@ def test_middleware_handles_hook_errors(mock_provider):
 
 @pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed")
 def test_get_router_dependency(mock_provider, make_response):
-    from fastapi import FastAPI, Depends, Request
-    from claudehooks import HookRouter
+    from fastapi import FastAPI, Depends
+    from clawdhooks import HookRouter
 
     router = HookRouter(provider=mock_provider)
 
     app = FastAPI()
-    app.add_middleware(ClaudeHooksMiddleware, router=router)
+    app.add_middleware(ClawdHooksMiddleware, router=router)
 
     @app.get("/stats")
     async def stats_endpoint(hook_router: HookRouter = Depends(get_router)):

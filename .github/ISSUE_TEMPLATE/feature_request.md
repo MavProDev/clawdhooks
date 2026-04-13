@@ -8,7 +8,7 @@ assignees: ''
 
 ## The problem
 
-<!-- What are you trying to do that claudehooks doesn't currently support well? -->
+<!-- What are you trying to do that clawdhooks doesn't currently support well? -->
 
 ## The proposed solution
 

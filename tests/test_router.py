@@ -1,8 +1,7 @@
 import pytest
 from pydantic import BaseModel
-from claudehooks.router import HookRouter
-from claudehooks.providers.base import LLMResponse
-from claudehooks.types import FallbackStrategy
+from clawdhooks.router import HookRouter
+from clawdhooks.types import FallbackStrategy
 
 
 class SentimentResult(BaseModel):

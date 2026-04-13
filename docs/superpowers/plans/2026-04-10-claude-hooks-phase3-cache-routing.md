@@ -13,7 +13,7 @@
 ## Task 1: Cache Module
 
 **Files:**
-- Create: `src/claude_hooks/cache.py`
+- Create: `src/clawd_hooks/cache.py`
 - Create: `tests/test_cache.py`
 
 ### Tests:
@@ -22,7 +22,7 @@
 # tests/test_cache.py
 import time
 import pytest
-from claude_hooks.cache import HookCache
+from clawd_hooks.cache import HookCache
 
 
 def test_cache_miss_returns_none():
@@ -102,7 +102,7 @@ def test_cache_overwrite():
 ### Implementation:
 
 ```python
-# src/claude_hooks/cache.py
+# src/clawd_hooks/cache.py
 """Per-hook LRU cache with TTL."""
 from __future__ import annotations
 
@@ -177,7 +177,7 @@ class HookCache:
 ## Task 2: Add CACHE and CASCADE Fallback Strategies
 
 **Files:**
-- Modify: `src/claude_hooks/types.py` — add CACHE and CASCADE to FallbackStrategy
+- Modify: `src/clawd_hooks/types.py` — add CACHE and CASCADE to FallbackStrategy
 - Modify: `tests/test_types.py` — add assertions for new values
 
 ### Changes to types.py:
@@ -203,7 +203,7 @@ assert FallbackStrategy.CASCADE.value == "cascade"
 ## Task 3: Wire Cache + Cascade into Router
 
 **Files:**
-- Modify: `src/claude_hooks/router.py`
+- Modify: `src/clawd_hooks/router.py`
 - Create: `tests/test_router_phase3.py`
 
 ### Router changes:
@@ -328,7 +328,7 @@ async def _try_cascade(self, config, output_model, output_schema, user_message, 
 ```python
 import pytest
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
+from clawd_hooks.router import HookRouter
 
 
 class Result(BaseModel):

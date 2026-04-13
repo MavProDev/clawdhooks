@@ -7,7 +7,7 @@ from typing import Any, Callable
 logger = logging.getLogger(__name__)
 
 
-class ClaudeHooksMiddleware:
+class ClawdHooksMiddleware:
     """Django middleware that attaches a HookRouter to each request.
 
     Usage in settings.py:
@@ -15,12 +15,12 @@ class ClaudeHooksMiddleware:
 
         MIDDLEWARE = [
             ...
-            'claudehooks.adapters.django.ClaudeHooksMiddleware',
+            'clawdhooks.adapters.django.ClawdHooksMiddleware',
         ]
 
     Access in views:
         def my_view(request):
-            router = request.claudehooks_router
+            router = request.clawdhooks_router
     """
 
     def __init__(self, get_response: Callable):
@@ -44,6 +44,6 @@ class ClaudeHooksMiddleware:
     def __call__(self, request: Any) -> Any:
         router = self._get_router()
         if router is not None:
-            request.claudehooks_router = router
+            request.clawdhooks_router = router
         response = self.get_response(request)
         return response

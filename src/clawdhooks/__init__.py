@@ -1,4 +1,4 @@
-"""claudehooks: Add Claude as middleware to any Python app with a single decorator."""
+"""clawdhooks: Add Claude as middleware to any Python app with a single decorator."""
 from .router import HookRouter
 from .context import HookContext
 from .types import FallbackStrategy, HookConfig, HookStatus
@@ -17,7 +17,7 @@ from .telemetry import HookTelemetry
 from .budget import BudgetTracker
 from .circuit import CircuitBreaker, CircuitState
 
-# OpenAI provider — optional, requires: pip install claudehooks[openai]
+# OpenAI provider — optional, requires: pip install clawdhooks[openai]
 try:
     from .providers.openai import OpenAIProvider
 except ImportError:

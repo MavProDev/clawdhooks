@@ -15,7 +15,7 @@
 ```
 Changes from Phase 1:
 
-src/claude_hooks/
+src/clawd_hooks/
   budget.py              # NEW — BudgetTracker: per-hook + global spending limits
   circuit.py             # NEW — CircuitBreaker: closed/open/half-open per hook
   router.py              # MODIFY — Wire budget + circuit into Gate step, add config params
@@ -31,7 +31,7 @@ tests/
 ## Task 1: Budget Engine
 
 **Files:**
-- Create: `src/claude_hooks/budget.py`
+- Create: `src/clawd_hooks/budget.py`
 - Create: `tests/test_budget.py`
 
 - [ ] **Step 1: Write test file `tests/test_budget.py`**
@@ -39,7 +39,7 @@ tests/
 ```python
 import time
 import pytest
-from claude_hooks.budget import BudgetTracker
+from clawd_hooks.budget import BudgetTracker
 
 
 def test_budget_tracker_allows_under_limit():
@@ -109,10 +109,10 @@ def test_budget_tracker_reset():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd "C:/Users/reeld/OneDrive/Desktop/Claude Projects/ClaudeHooks" && source .venv/Scripts/activate && pytest tests/test_budget.py -v`
+Run: `cd "C:/Users/reeld/OneDrive/Desktop/Claude Projects/ClawdHooks" && source .venv/Scripts/activate && pytest tests/test_budget.py -v`
 Expected: FAIL — ModuleNotFoundError
 
-- [ ] **Step 3: Implement `src/claude_hooks/budget.py`**
+- [ ] **Step 3: Implement `src/clawd_hooks/budget.py`**
 
 ```python
 """Budget tracking for hook invocations."""
@@ -241,7 +241,7 @@ Expected: 8 passed
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/claude_hooks/budget.py tests/test_budget.py
+git add src/clawd_hooks/budget.py tests/test_budget.py
 git commit -m "feat: add BudgetTracker with per-hook and global limits"
 ```
 
@@ -250,7 +250,7 @@ git commit -m "feat: add BudgetTracker with per-hook and global limits"
 ## Task 2: Circuit Breaker
 
 **Files:**
-- Create: `src/claude_hooks/circuit.py`
+- Create: `src/clawd_hooks/circuit.py`
 - Create: `tests/test_circuit.py`
 
 - [ ] **Step 1: Write test file `tests/test_circuit.py`**
@@ -258,7 +258,7 @@ git commit -m "feat: add BudgetTracker with per-hook and global limits"
 ```python
 import time
 import pytest
-from claude_hooks.circuit import CircuitBreaker, CircuitState
+from clawd_hooks.circuit import CircuitBreaker, CircuitState
 
 
 def test_initial_state_is_closed():
@@ -361,7 +361,7 @@ def test_stats():
 Run: `pytest tests/test_circuit.py -v`
 Expected: FAIL — ModuleNotFoundError
 
-- [ ] **Step 3: Implement `src/claude_hooks/circuit.py`**
+- [ ] **Step 3: Implement `src/clawd_hooks/circuit.py`**
 
 ```python
 """Circuit breaker for LLM API resilience."""
@@ -485,7 +485,7 @@ Expected: 11 passed
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/claude_hooks/circuit.py tests/test_circuit.py
+git add src/clawd_hooks/circuit.py tests/test_circuit.py
 git commit -m "feat: add CircuitBreaker with closed/open/half-open states"
 ```
 
@@ -494,7 +494,7 @@ git commit -m "feat: add CircuitBreaker with closed/open/half-open states"
 ## Task 3: Wire Budget + Circuit into Router
 
 **Files:**
-- Modify: `src/claude_hooks/router.py`
+- Modify: `src/clawd_hooks/router.py`
 - Create: `tests/test_router_phase2.py`
 
 - [ ] **Step 1: Write test file `tests/test_router_phase2.py`**
@@ -502,8 +502,8 @@ git commit -m "feat: add CircuitBreaker with closed/open/half-open states"
 ```python
 import pytest
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
-from claude_hooks.exceptions import HookBudgetError
+from clawd_hooks.router import HookRouter
+from clawd_hooks.exceptions import HookBudgetError
 
 
 class Result(BaseModel):
@@ -638,7 +638,7 @@ async def test_router_stats_include_budget_and_circuit(mock_provider, make_respo
 Run: `pytest tests/test_router_phase2.py -v`
 Expected: FAIL — TypeError (router doesn't accept budget/circuit params yet)
 
-- [ ] **Step 3: Modify `src/claude_hooks/router.py`**
+- [ ] **Step 3: Modify `src/clawd_hooks/router.py`**
 
 Changes needed in HookRouter:
 
@@ -728,7 +728,7 @@ Expected: All tests pass (57 existing + 8 budget + 11 circuit + 5 router_phase2 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/claude_hooks/router.py tests/test_router_phase2.py
+git add src/clawd_hooks/router.py tests/test_router_phase2.py
 git commit -m "feat: wire budget engine and circuit breaker into router lifecycle"
 ```
 

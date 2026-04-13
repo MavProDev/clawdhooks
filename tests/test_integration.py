@@ -1,9 +1,7 @@
 """Integration test: end-to-end hook lifecycle with MockProvider."""
 import pytest
 from pydantic import BaseModel
-from claudehooks import HookRouter, HookContext
-from claudehooks.providers.base import LLMResponse
-from claudehooks.exceptions import HookError, HookTimeoutError
+from clawdhooks import HookRouter
 
 
 class SupportTicket(BaseModel):

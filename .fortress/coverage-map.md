@@ -3,25 +3,25 @@
 ## Audit: 2026-04-12
 
 ### Files Analyzed (19/19)
-- src/claude_hooks/__init__.py
-- src/claude_hooks/budget.py
-- src/claude_hooks/cache.py
-- src/claude_hooks/circuit.py
-- src/claude_hooks/context.py
-- src/claude_hooks/exceptions.py
-- src/claude_hooks/fallbacks.py
-- src/claude_hooks/pii.py
-- src/claude_hooks/router.py
-- src/claude_hooks/telemetry.py
-- src/claude_hooks/types.py
-- src/claude_hooks/adapters/__init__.py
-- src/claude_hooks/adapters/celery.py
-- src/claude_hooks/adapters/django.py
-- src/claude_hooks/adapters/fastapi.py
-- src/claude_hooks/providers/__init__.py
-- src/claude_hooks/providers/base.py
-- src/claude_hooks/providers/claude.py
-- src/claude_hooks/providers/openai.py
+- src/clawd_hooks/__init__.py
+- src/clawd_hooks/budget.py
+- src/clawd_hooks/cache.py
+- src/clawd_hooks/circuit.py
+- src/clawd_hooks/context.py
+- src/clawd_hooks/exceptions.py
+- src/clawd_hooks/fallbacks.py
+- src/clawd_hooks/pii.py
+- src/clawd_hooks/router.py
+- src/clawd_hooks/telemetry.py
+- src/clawd_hooks/types.py
+- src/clawd_hooks/adapters/__init__.py
+- src/clawd_hooks/adapters/celery.py
+- src/clawd_hooks/adapters/django.py
+- src/clawd_hooks/adapters/fastapi.py
+- src/clawd_hooks/providers/__init__.py
+- src/clawd_hooks/providers/base.py
+- src/clawd_hooks/providers/claude.py
+- src/clawd_hooks/providers/openai.py
 
 ### CWE Categories Tested (20 of Top 25)
 - CWE-20 (Input Validation) ✓

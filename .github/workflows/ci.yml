@@ -32,7 +32,7 @@ jobs:
         run: ruff check src tests
 
       - name: Run tests
-        run: pytest -v --cov=claudehooks --cov-report=term-missing
+        run: pytest -v --cov=clawdhooks --cov-report=term-missing
 
   build:
     runs-on: ubuntu-latest

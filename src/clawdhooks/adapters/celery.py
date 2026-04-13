@@ -1,7 +1,6 @@
 """Celery task integration for claude-hooks."""
 from __future__ import annotations
 
-import asyncio
 import functools
 from typing import Any, Callable
 
@@ -20,7 +19,7 @@ def hook_task(
     """Decorator that wraps a function as both a claude hook and a Celery-compatible task.
 
     Usage:
-        from claudehooks.adapters.celery import hook_task
+        from clawdhooks.adapters.celery import hook_task
 
         @hook_task(router, model="haiku")
         def process_data(data: DataInput) -> ProcessResult:

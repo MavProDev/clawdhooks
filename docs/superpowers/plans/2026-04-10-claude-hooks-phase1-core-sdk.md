@@ -13,9 +13,9 @@
 ## File Structure
 
 ```
-ClaudeHooks/
+ClawdHooks/
   src/
-    claude_hooks/
+    clawd_hooks/
       __init__.py          # Public API: hook, HookRouter, HookContext
       exceptions.py        # HookError, HookTimeoutError, HookValidationError, HookProviderError
       types.py             # FallbackStrategy enum, HookStatus enum, HookConfig dataclass
@@ -55,14 +55,14 @@ ClaudeHooks/
 - Create: `pyproject.toml`
 - Create: `.gitignore`
 - Create: `LICENSE`
-- Create: `src/claude_hooks/__init__.py` (empty placeholder)
+- Create: `src/clawd_hooks/__init__.py` (empty placeholder)
 - Create: `tests/__init__.py` (empty)
 
 - [ ] **Step 1: Initialize git repository**
 
 Run:
 ```bash
-cd "C:/Users/reeld/OneDrive/Desktop/Claude Projects/ClaudeHooks"
+cd "C:/Users/reeld/OneDrive/Desktop/Claude Projects/ClawdHooks"
 git init
 ```
 
@@ -119,7 +119,7 @@ Repository = "https://github.com/mavprogroup/claude-hooks"
 Issues = "https://github.com/mavprogroup/claude-hooks/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/claude_hooks"]
+packages = ["src/clawd_hooks"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -183,9 +183,9 @@ SOFTWARE.
 - [ ] **Step 5: Create placeholder files and directory structure**
 
 ```bash
-mkdir -p src/claude_hooks/providers tests examples
-touch src/claude_hooks/__init__.py
-touch src/claude_hooks/providers/__init__.py
+mkdir -p src/clawd_hooks/providers tests examples
+touch src/clawd_hooks/__init__.py
+touch src/clawd_hooks/providers/__init__.py
 touch tests/__init__.py
 ```
 
@@ -214,14 +214,14 @@ git commit -m "chore: initialize claude-hooks project scaffold"
 ## Task 2: Exceptions
 
 **Files:**
-- Create: `src/claude_hooks/exceptions.py`
+- Create: `src/clawd_hooks/exceptions.py`
 - Create: `tests/test_exceptions.py`
 
 - [ ] **Step 1: Write test for exceptions**
 
 ```python
 # tests/test_exceptions.py
-from claude_hooks.exceptions import (
+from clawd_hooks.exceptions import (
     HookError,
     HookTimeoutError,
     HookBudgetError,
@@ -265,12 +265,12 @@ def test_provider_error_inherits_hook_error():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_exceptions.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'claude_hooks.exceptions'`
+Expected: FAIL — `ModuleNotFoundError: No module named 'clawd_hooks.exceptions'`
 
 - [ ] **Step 3: Implement exceptions**
 
 ```python
-# src/claude_hooks/exceptions.py
+# src/clawd_hooks/exceptions.py
 """Custom exceptions for claude-hooks."""
 
 
@@ -320,7 +320,7 @@ Expected: 5 passed
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/claude_hooks/exceptions.py tests/test_exceptions.py
+git add src/clawd_hooks/exceptions.py tests/test_exceptions.py
 git commit -m "feat: add custom exception hierarchy"
 ```
 
@@ -329,14 +329,14 @@ git commit -m "feat: add custom exception hierarchy"
 ## Task 3: Types & Enums
 
 **Files:**
-- Create: `src/claude_hooks/types.py`
+- Create: `src/clawd_hooks/types.py`
 - Create: `tests/test_types.py`
 
 - [ ] **Step 1: Write test for types**
 
 ```python
 # tests/test_types.py
-from claude_hooks.types import FallbackStrategy, HookStatus, HookConfig
+from clawd_hooks.types import FallbackStrategy, HookStatus, HookConfig
 
 
 def test_fallback_strategy_values():
@@ -381,12 +381,12 @@ def test_hook_config_custom():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_types.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'claude_hooks.types'`
+Expected: FAIL — `ModuleNotFoundError: No module named 'clawd_hooks.types'`
 
 - [ ] **Step 3: Implement types**
 
 ```python
-# src/claude_hooks/types.py
+# src/clawd_hooks/types.py
 """Shared types and configuration for claude-hooks."""
 from __future__ import annotations
 
@@ -434,7 +434,7 @@ Expected: 4 passed
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/claude_hooks/types.py tests/test_types.py
+git add src/clawd_hooks/types.py tests/test_types.py
 git commit -m "feat: add types, enums, and HookConfig"
 ```
 
@@ -443,8 +443,8 @@ git commit -m "feat: add types, enums, and HookConfig"
 ## Task 4: Provider Abstraction
 
 **Files:**
-- Create: `src/claude_hooks/providers/base.py`
-- Modify: `src/claude_hooks/providers/__init__.py`
+- Create: `src/clawd_hooks/providers/base.py`
+- Modify: `src/clawd_hooks/providers/__init__.py`
 - Create: `tests/test_provider_base.py`
 
 - [ ] **Step 1: Write test for provider base**
@@ -452,7 +452,7 @@ git commit -m "feat: add types, enums, and HookConfig"
 ```python
 # tests/test_provider_base.py
 import pytest
-from claude_hooks.providers.base import LLMProvider, LLMResponse
+from clawd_hooks.providers.base import LLMProvider, LLMResponse
 
 
 def test_llm_response_creation():
@@ -524,7 +524,7 @@ Expected: FAIL — `ModuleNotFoundError`
 - [ ] **Step 3: Implement provider base**
 
 ```python
-# src/claude_hooks/providers/base.py
+# src/clawd_hooks/providers/base.py
 """Abstract base class for LLM providers."""
 from __future__ import annotations
 
@@ -594,7 +594,7 @@ class LLMProvider(ABC):
 - [ ] **Step 4: Update providers __init__.py**
 
 ```python
-# src/claude_hooks/providers/__init__.py
+# src/clawd_hooks/providers/__init__.py
 """LLM provider abstractions."""
 from .base import LLMProvider, LLMResponse
 
@@ -609,7 +609,7 @@ Expected: 5 passed
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/claude_hooks/providers/ tests/test_provider_base.py
+git add src/clawd_hooks/providers/ tests/test_provider_base.py
 git commit -m "feat: add LLMProvider abstraction and LLMResponse"
 ```
 
@@ -618,8 +618,8 @@ git commit -m "feat: add LLMProvider abstraction and LLMResponse"
 ## Task 5: Claude Provider
 
 **Files:**
-- Create: `src/claude_hooks/providers/claude.py`
-- Modify: `src/claude_hooks/providers/__init__.py`
+- Create: `src/clawd_hooks/providers/claude.py`
+- Modify: `src/clawd_hooks/providers/__init__.py`
 - Create: `tests/test_provider_claude.py`
 - Create: `tests/conftest.py`
 
@@ -630,7 +630,7 @@ git commit -m "feat: add LLMProvider abstraction and LLMResponse"
 """Shared test fixtures for claude-hooks."""
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from claude_hooks.providers.base import LLMProvider, LLMResponse
+from clawd_hooks.providers.base import LLMProvider, LLMResponse
 
 
 class MockProvider(LLMProvider):
@@ -722,7 +722,7 @@ def mock_anthropic_client():
 # tests/test_provider_claude.py
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from claude_hooks.providers.claude import ClaudeProvider, MODEL_ALIASES, MODEL_PRICING
+from clawd_hooks.providers.claude import ClaudeProvider, MODEL_ALIASES, MODEL_PRICING
 
 
 def test_model_aliases():
@@ -732,19 +732,19 @@ def test_model_aliases():
 
 
 def test_provider_name():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("clawd_hooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     assert provider.name == "claude"
 
 
 def test_default_model():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("clawd_hooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     assert "sonnet" in provider.default_model()
 
 
 def test_resolve_model_alias():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("clawd_hooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     assert provider.resolve_model("haiku") == MODEL_ALIASES["haiku"]
     assert provider.resolve_model("sonnet") == MODEL_ALIASES["sonnet"]
@@ -752,14 +752,14 @@ def test_resolve_model_alias():
 
 
 def test_resolve_model_passthrough():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("clawd_hooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     full_id = "claude-sonnet-4-6"
     assert provider.resolve_model(full_id) == full_id
 
 
 def test_model_timeout_defaults():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("clawd_hooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     assert provider.model_timeout("haiku") == 5.0
     assert provider.model_timeout("sonnet") == 10.0
@@ -769,7 +769,7 @@ def test_model_timeout_defaults():
 
 @pytest.mark.asyncio
 async def test_complete_sends_correct_request(mock_anthropic_client):
-    with patch("claude_hooks.providers.claude.anthropic") as mock_anthropic:
+    with patch("clawd_hooks.providers.claude.anthropic") as mock_anthropic:
         mock_anthropic.AsyncAnthropic.return_value = mock_anthropic_client
         provider = ClaudeProvider(api_key="test-key")
 
@@ -820,12 +820,12 @@ async def test_complete_raises_on_no_tool_use(mock_anthropic_client):
 
     mock_anthropic_client.messages.create.return_value.content = [text_block]
 
-    with patch("claude_hooks.providers.claude.anthropic") as mock_anthropic:
+    with patch("clawd_hooks.providers.claude.anthropic") as mock_anthropic:
         mock_anthropic.AsyncAnthropic.return_value = mock_anthropic_client
         provider = ClaudeProvider(api_key="test-key")
     provider._client = mock_anthropic_client
 
-    from claude_hooks.exceptions import HookProviderError
+    from clawd_hooks.exceptions import HookProviderError
 
     with pytest.raises(HookProviderError, match="No structured response"):
         await provider.complete(
@@ -840,12 +840,12 @@ async def test_complete_raises_on_no_tool_use(mock_anthropic_client):
 - [ ] **Step 3: Run test to verify it fails**
 
 Run: `pytest tests/test_provider_claude.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'claude_hooks.providers.claude'`
+Expected: FAIL — `ModuleNotFoundError: No module named 'clawd_hooks.providers.claude'`
 
 - [ ] **Step 4: Implement Claude provider**
 
 ```python
-# src/claude_hooks/providers/claude.py
+# src/clawd_hooks/providers/claude.py
 """Claude/Anthropic LLM provider."""
 from __future__ import annotations
 
@@ -980,7 +980,7 @@ class ClaudeProvider(LLMProvider):
 - [ ] **Step 5: Update providers __init__.py**
 
 ```python
-# src/claude_hooks/providers/__init__.py
+# src/clawd_hooks/providers/__init__.py
 """LLM provider abstractions."""
 from .base import LLMProvider, LLMResponse
 from .claude import ClaudeProvider
@@ -996,7 +996,7 @@ Expected: 8 passed
 - [ ] **Step 7: Commit**
 
 ```bash
-git add src/claude_hooks/providers/ tests/test_provider_claude.py tests/conftest.py
+git add src/clawd_hooks/providers/ tests/test_provider_claude.py tests/conftest.py
 git commit -m "feat: add ClaudeProvider with tool_use structured output"
 ```
 
@@ -1005,7 +1005,7 @@ git commit -m "feat: add ClaudeProvider with tool_use structured output"
 ## Task 6: HookContext
 
 **Files:**
-- Create: `src/claude_hooks/context.py`
+- Create: `src/clawd_hooks/context.py`
 - Create: `tests/test_context.py`
 
 - [ ] **Step 1: Write test for HookContext**
@@ -1014,8 +1014,8 @@ git commit -m "feat: add ClaudeProvider with tool_use structured output"
 # tests/test_context.py
 import time
 import pytest
-from claude_hooks.context import HookContext
-from claude_hooks.types import HookStatus
+from clawd_hooks.context import HookContext
+from clawd_hooks.types import HookStatus
 
 
 def test_context_creation():
@@ -1088,7 +1088,7 @@ Expected: FAIL — `ModuleNotFoundError`
 - [ ] **Step 3: Implement HookContext**
 
 ```python
-# src/claude_hooks/context.py
+# src/clawd_hooks/context.py
 """Runtime context for hook invocations."""
 from __future__ import annotations
 
@@ -1165,7 +1165,7 @@ Expected: 5 passed
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/claude_hooks/context.py tests/test_context.py
+git add src/clawd_hooks/context.py tests/test_context.py
 git commit -m "feat: add HookContext for runtime invocation metadata"
 ```
 
@@ -1174,7 +1174,7 @@ git commit -m "feat: add HookContext for runtime invocation metadata"
 ## Task 7: Fallback Strategies
 
 **Files:**
-- Create: `src/claude_hooks/fallbacks.py`
+- Create: `src/clawd_hooks/fallbacks.py`
 - Create: `tests/test_fallbacks.py`
 
 - [ ] **Step 1: Write test for fallbacks**
@@ -1183,9 +1183,9 @@ git commit -m "feat: add HookContext for runtime invocation metadata"
 # tests/test_fallbacks.py
 import pytest
 from pydantic import BaseModel
-from claude_hooks.fallbacks import resolve_fallback
-from claude_hooks.types import FallbackStrategy
-from claude_hooks.exceptions import HookTimeoutError, HookProviderError
+from clawd_hooks.fallbacks import resolve_fallback
+from clawd_hooks.types import FallbackStrategy
+from clawd_hooks.exceptions import HookTimeoutError, HookProviderError
 
 
 class MockOutput(BaseModel):
@@ -1277,7 +1277,7 @@ def test_local_returns_none_if_func_is_stub():
 
 @pytest.mark.asyncio
 async def test_local_handles_async_fallback():
-    from claude_hooks.fallbacks import resolve_fallback_async
+    from clawd_hooks.fallbacks import resolve_fallback_async
 
     async def async_fallback(text: str) -> MockOutput:
         return MockOutput(action="allow", reason="async local")
@@ -1302,7 +1302,7 @@ Expected: FAIL — `ModuleNotFoundError`
 - [ ] **Step 3: Implement fallbacks**
 
 ```python
-# src/claude_hooks/fallbacks.py
+# src/clawd_hooks/fallbacks.py
 """Fallback strategies for when Claude is unavailable."""
 from __future__ import annotations
 
@@ -1386,7 +1386,7 @@ Expected: 7 passed
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/claude_hooks/fallbacks.py tests/test_fallbacks.py
+git add src/clawd_hooks/fallbacks.py tests/test_fallbacks.py
 git commit -m "feat: add fallback strategies (skip, default, raise, local)"
 ```
 
@@ -1395,7 +1395,7 @@ git commit -m "feat: add fallback strategies (skip, default, raise, local)"
 ## Task 8: HookRouter
 
 **Files:**
-- Create: `src/claude_hooks/router.py`
+- Create: `src/clawd_hooks/router.py`
 - Create: `tests/test_router.py`
 
 - [ ] **Step 1: Write test for HookRouter**
@@ -1404,9 +1404,9 @@ git commit -m "feat: add fallback strategies (skip, default, raise, local)"
 # tests/test_router.py
 import pytest
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
-from claude_hooks.providers.base import LLMResponse
-from claude_hooks.types import FallbackStrategy
+from clawd_hooks.router import HookRouter
+from clawd_hooks.providers.base import LLMResponse
+from clawd_hooks.types import FallbackStrategy
 
 
 class SentimentResult(BaseModel):
@@ -1503,7 +1503,7 @@ Expected: FAIL — `ModuleNotFoundError`
 - [ ] **Step 3: Implement HookRouter**
 
 ```python
-# src/claude_hooks/router.py
+# src/clawd_hooks/router.py
 """HookRouter — central registry for all hooks."""
 from __future__ import annotations
 
@@ -1872,7 +1872,7 @@ Expected: 8 passed
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/claude_hooks/router.py tests/test_router.py
+git add src/clawd_hooks/router.py tests/test_router.py
 git commit -m "feat: add HookRouter with registration, lifecycle, and stats"
 ```
 
@@ -1891,10 +1891,10 @@ This task tests the full decorator flow with the MockProvider — no API calls.
 # tests/test_hook.py
 import pytest
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
-from claude_hooks.providers.base import LLMResponse
-from claude_hooks.types import FallbackStrategy
-from claude_hooks.exceptions import HookTimeoutError, HookProviderError
+from clawd_hooks.router import HookRouter
+from clawd_hooks.providers.base import LLMResponse
+from clawd_hooks.types import FallbackStrategy
+from clawd_hooks.exceptions import HookTimeoutError, HookProviderError
 
 
 class ModerationResult(BaseModel):
@@ -2133,7 +2133,7 @@ git commit -m "test: add comprehensive hook decorator tests"
 ## Task 10: Public API & Integration Test
 
 **Files:**
-- Modify: `src/claude_hooks/__init__.py`
+- Modify: `src/clawd_hooks/__init__.py`
 - Create: `tests/test_integration.py`
 
 - [ ] **Step 1: Write integration test**
@@ -2143,9 +2143,9 @@ git commit -m "test: add comprehensive hook decorator tests"
 """Integration test: end-to-end hook lifecycle with MockProvider."""
 import pytest
 from pydantic import BaseModel
-from claude_hooks import HookRouter, HookContext
-from claude_hooks.providers.base import LLMResponse
-from claude_hooks.exceptions import HookError, HookTimeoutError
+from clawd_hooks import HookRouter, HookContext
+from clawd_hooks.providers.base import LLMResponse
+from clawd_hooks.exceptions import HookError, HookTimeoutError
 
 
 class SupportTicket(BaseModel):
@@ -2292,7 +2292,7 @@ def test_sync_workflow(mock_provider, make_response):
 - [ ] **Step 2: Implement public API**
 
 ```python
-# src/claude_hooks/__init__.py
+# src/clawd_hooks/__init__.py
 """claude-hooks: Add Claude as middleware to any Python app with a single decorator."""
 from .router import HookRouter
 from .context import HookContext
@@ -2343,7 +2343,7 @@ Expected: All tests pass (exceptions, types, provider, context, fallbacks, route
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/claude_hooks/__init__.py tests/test_integration.py
+git add src/clawd_hooks/__init__.py tests/test_integration.py
 git commit -m "feat: wire up public API and add integration tests"
 ```
 
@@ -2375,7 +2375,7 @@ import os
 
 from pydantic import BaseModel
 
-from claude_hooks import HookRouter
+from clawd_hooks import HookRouter
 
 
 # --- Schemas ---
@@ -2471,7 +2471,7 @@ pip install claude-hooks
 ```python
 import os
 from pydantic import BaseModel
-from claude_hooks import HookRouter
+from clawd_hooks import HookRouter
 
 router = HookRouter(api_key=os.environ["ANTHROPIC_API_KEY"])
 
@@ -2578,7 +2578,7 @@ git tag v0.1.0-alpha
 - [ ] All tests pass: `pytest tests/ -v`
 - [ ] Example runs (with mocked provider or real API key)
 - [ ] `pip install -e .` works
-- [ ] Public API exports are clean: `from claude_hooks import HookRouter, HookContext`
+- [ ] Public API exports are clean: `from clawd_hooks import HookRouter, HookContext`
 - [ ] sync and async both work
 - [ ] All four fallback strategies work
 - [ ] Stats tracking works
@@ -2595,8 +2595,8 @@ These phases build on Phase 1. Each will get its own detailed plan when we begin
 **Goal:** Prevent cost overruns and handle API outages gracefully.
 
 **Files:**
-- `src/claude_hooks/budget.py` — Token bucket rate limiter, per-hook + global budgets
-- `src/claude_hooks/circuit.py` — Circuit breaker (closed/open/half-open)
+- `src/clawd_hooks/budget.py` — Token bucket rate limiter, per-hook + global budgets
+- `src/clawd_hooks/circuit.py` — Circuit breaker (closed/open/half-open)
 - Modify: `router.py` — Wire budget gate + circuit breaker into lifecycle Step 2 (Gate)
 
 **Key features:**
@@ -2614,8 +2614,8 @@ These phases build on Phase 1. Each will get its own detailed plan when we begin
 **Goal:** Reduce costs through caching and smart model selection.
 
 **Files:**
-- `src/claude_hooks/cache.py` — LRU cache + hash-based semantic cache
-- `src/claude_hooks/routing.py` — Confidence-based model escalation
+- `src/clawd_hooks/cache.py` — LRU cache + hash-based semantic cache
+- `src/clawd_hooks/routing.py` — Confidence-based model escalation
 - Modify: `fallbacks.py` — Add `cache` and `cascade` strategies
 
 **Key features:**
@@ -2634,7 +2634,7 @@ These phases build on Phase 1. Each will get its own detailed plan when we begin
 **Goal:** Production-grade observability via OpenTelemetry.
 
 **Files:**
-- `src/claude_hooks/telemetry.py` — OTel spans, metrics, GenAI semantic conventions
+- `src/clawd_hooks/telemetry.py` — OTel spans, metrics, GenAI semantic conventions
 
 **Key features:**
 - Span per hook invocation: `hook.moderate claude-sonnet-4-6`
@@ -2653,13 +2653,13 @@ These phases build on Phase 1. Each will get its own detailed plan when we begin
 **Goal:** Drop-in integration with FastAPI, Django, and Celery.
 
 **Files:**
-- `src/claude_hooks/adapters/fastapi.py` — Middleware + dependency injection
-- `src/claude_hooks/adapters/django.py` — Django middleware class
-- `src/claude_hooks/adapters/celery.py` — Celery task decorator wrapper
+- `src/clawd_hooks/adapters/fastapi.py` — Middleware + dependency injection
+- `src/clawd_hooks/adapters/django.py` — Django middleware class
+- `src/clawd_hooks/adapters/celery.py` — Celery task decorator wrapper
 
 **Key features:**
-- FastAPI: `app.add_middleware(ClaudeHooksMiddleware, router=router)` auto-hooks request handlers
-- Django: `MIDDLEWARE = ["claude_hooks.adapters.django.ClaudeHooksMiddleware"]`
+- FastAPI: `app.add_middleware(ClawdHooksMiddleware, router=router)` auto-hooks request handlers
+- Django: `MIDDLEWARE = ["clawd_hooks.adapters.django.ClawdHooksMiddleware"]`
 - Celery: `@router.celery_hook(model="haiku")` wraps Celery tasks
 
 **Estimated:** ~800 LOC + tests
@@ -2671,8 +2671,8 @@ These phases build on Phase 1. Each will get its own detailed plan when we begin
 **Goal:** Enterprise data governance + multi-provider support.
 
 **Files:**
-- `src/claude_hooks/pii.py` — PII detection/anonymization (optional dependency)
-- `src/claude_hooks/providers/openai.py` — OpenAI GPT provider
+- `src/clawd_hooks/pii.py` — PII detection/anonymization (optional dependency)
+- `src/clawd_hooks/providers/openai.py` — OpenAI GPT provider
 
 **Key features:**
 - PII pre-filter: detect and tokenize PII before sending to Claude

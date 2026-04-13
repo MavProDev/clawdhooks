@@ -13,11 +13,11 @@
 ## Task 1: Telemetry Module
 
 **Files:**
-- Create: `src/claude_hooks/telemetry.py`
+- Create: `src/clawd_hooks/telemetry.py`
 - Create: `tests/test_telemetry.py`
 - Modify: `pyproject.toml` — add telemetry optional dependency
 
-### Implementation `src/claude_hooks/telemetry.py`:
+### Implementation `src/clawd_hooks/telemetry.py`:
 
 ```python
 """OpenTelemetry integration for claude-hooks."""
@@ -150,9 +150,9 @@ class HookTelemetry:
 
 ```python
 import pytest
-from claude_hooks.telemetry import HookTelemetry, _NoOpSpan, HAS_OTEL
-from claude_hooks.context import HookContext
-from claude_hooks.types import HookStatus
+from clawd_hooks.telemetry import HookTelemetry, _NoOpSpan, HAS_OTEL
+from clawd_hooks.context import HookContext
+from clawd_hooks.types import HookStatus
 
 
 def test_noop_span_is_safe():
@@ -310,7 +310,7 @@ After modifying pyproject.toml, run: `pip install -e ".[dev]"` to install OTel.
 ## Task 2: Wire Telemetry into Router
 
 **Files:**
-- Modify: `src/claude_hooks/router.py`
+- Modify: `src/clawd_hooks/router.py`
 - Create: `tests/test_router_phase4.py`
 
 ### Router changes:
@@ -370,8 +370,8 @@ But the ctx needs to be created before the try block.
 ```python
 import pytest
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
-from claude_hooks.telemetry import HAS_OTEL
+from clawd_hooks.router import HookRouter
+from clawd_hooks.telemetry import HAS_OTEL
 
 
 class Result(BaseModel):

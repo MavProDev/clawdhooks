@@ -1,7 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(gh repo:*)",
+      "Bash(python -c \"import zipfile; z=zipfile.ZipFile\\('dist/clawdhooks-0.1.0-py3-none-any.whl'\\); [print\\(l.decode\\(\\)\\) for l in z.read\\([n for n in z.namelist\\(\\) if n.endswith\\('METADATA'\\)][0]\\).splitlines\\(\\)[:25]]\")",
+      "Bash(curl:*)",
+      "Bash(gh release create v0.1.0 dist/clawdhooks-0.1.0-py3-none-any.whl dist/clawdhooks-0.1.0.tar.gz --title 'v0.1.0 — initial public release' --notes ':*)",
+      "Read(//c/Users/reeld/**)",
+      "Bash(env)",
+      "Bash(gh secret:*)",
+      "Bash(ls -d \"/c/Users/reeld/OneDrive/Documents\"/*Obsidian* \"/c/Users/reeld/Documents\"/*Obsidian* \"/c/Users/reeld/OneDrive\"/*Obsidian* \"/c/Users/reeld\"/*Obsidian*)",
+      "Bash(mkdir -p \"/c/Users/reeld/OneDrive/Documents/Dad's Obsidian Notes/Dad's Laptop Brain/ClaudeCode Notes/ClawdHooks Research\")",
+      "Bash(cp \"/c/Users/reeld/OneDrive/Desktop/Claude Projects/ClawdHooks/claude-hooks-research-whitepaper.md\" \"/c/Users/reeld/OneDrive/Documents/Dad's Obsidian Notes/Dad's Laptop Brain/ClaudeCode Notes/ClawdHooks Research/\")",
+      "Bash(cp \"/c/Users/reeld/OneDrive/Desktop/Claude Projects/ClawdHooks/claude-hooks-architecture-v2-enhanced.docx\" \"/c/Users/reeld/OneDrive/Documents/Dad's Obsidian Notes/Dad's Laptop Brain/ClaudeCode Notes/ClawdHooks Research/\")",
+      "Bash(gh run:*)",
+      "Bash(.venv/Scripts/python -m ruff check src tests --fix)",
+      "Bash(.venv/Scripts/python -m ruff check src tests)"
     ]
   }
 }
