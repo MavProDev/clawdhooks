@@ -1,5 +1,5 @@
 import pytest
-from claude_hooks.providers.base import LLMProvider, LLMResponse
+from claudehooks.providers.base import LLMProvider, LLMResponse
 
 
 def test_llm_response_creation():

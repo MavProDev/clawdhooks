@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from claude_hooks.providers.openai import OpenAIProvider, MODEL_ALIASES, MODEL_PRICING
+from claudehooks.providers.openai import OpenAIProvider, MODEL_ALIASES, MODEL_PRICING
 
 
 def test_model_aliases():
@@ -10,34 +10,34 @@ def test_model_aliases():
 
 
 def test_provider_name():
-    with patch("claude_hooks.providers.openai.openai"):
+    with patch("claudehooks.providers.openai.openai"):
         provider = OpenAIProvider(api_key="test-key")
     assert provider.name == "openai"
 
 
 def test_default_model():
-    with patch("claude_hooks.providers.openai.openai"):
+    with patch("claudehooks.providers.openai.openai"):
         provider = OpenAIProvider(api_key="test-key")
     default = provider.default_model()
     assert "gpt" in default or "4o" in default
 
 
 def test_resolve_model_alias():
-    with patch("claude_hooks.providers.openai.openai"):
+    with patch("claudehooks.providers.openai.openai"):
         provider = OpenAIProvider(api_key="test-key")
     assert provider.resolve_model("gpt4o") == MODEL_ALIASES["gpt4o"]
     assert provider.resolve_model("gpt4o-mini") == MODEL_ALIASES["gpt4o-mini"]
 
 
 def test_resolve_model_passthrough():
-    with patch("claude_hooks.providers.openai.openai"):
+    with patch("claudehooks.providers.openai.openai"):
         provider = OpenAIProvider(api_key="test-key")
     full_id = "gpt-4o-2024-08-06"
     assert provider.resolve_model(full_id) == full_id
 
 
 def test_model_timeout_defaults():
-    with patch("claude_hooks.providers.openai.openai"):
+    with patch("claudehooks.providers.openai.openai"):
         provider = OpenAIProvider(api_key="test-key")
     assert provider.model_timeout("gpt4o") == 10.0
     assert provider.model_timeout("gpt4o-mini") == 5.0
@@ -68,7 +68,7 @@ async def test_complete_sends_correct_request():
 
     mock_client.chat.completions.create = AsyncMock(return_value=response)
 
-    with patch("claude_hooks.providers.openai.openai") as mock_openai:
+    with patch("claudehooks.providers.openai.openai") as mock_openai:
         mock_openai.AsyncOpenAI.return_value = mock_client
         provider = OpenAIProvider(api_key="test-key")
     provider._client = mock_client
@@ -121,12 +121,12 @@ async def test_complete_raises_on_refusal():
 
     mock_client.chat.completions.create = AsyncMock(return_value=response)
 
-    with patch("claude_hooks.providers.openai.openai") as mock_openai:
+    with patch("claudehooks.providers.openai.openai") as mock_openai:
         mock_openai.AsyncOpenAI.return_value = mock_client
         provider = OpenAIProvider(api_key="test-key")
     provider._client = mock_client
 
-    from claude_hooks.exceptions import HookProviderError
+    from claudehooks.exceptions import HookProviderError
 
     with pytest.raises(HookProviderError, match="refused"):
         await provider.complete(

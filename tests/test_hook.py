@@ -1,9 +1,9 @@
 import pytest
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
-from claude_hooks.providers.base import LLMResponse
-from claude_hooks.types import FallbackStrategy
-from claude_hooks.exceptions import HookTimeoutError, HookProviderError
+from claudehooks.router import HookRouter
+from claudehooks.providers.base import LLMResponse
+from claudehooks.types import FallbackStrategy
+from claudehooks.exceptions import HookTimeoutError, HookProviderError
 
 
 class ModerationResult(BaseModel):

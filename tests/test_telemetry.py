@@ -1,7 +1,7 @@
 import pytest
-from claude_hooks.telemetry import HookTelemetry, _NoOpSpan, HAS_OTEL
-from claude_hooks.context import HookContext
-from claude_hooks.types import HookStatus
+from claudehooks.telemetry import HookTelemetry, _NoOpSpan, HAS_OTEL
+from claudehooks.context import HookContext
+from claudehooks.types import HookStatus
 
 
 def test_noop_span_is_safe():

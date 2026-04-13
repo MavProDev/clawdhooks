@@ -1,15 +1,15 @@
-# claude-hooks
+# claudehooks
 
 **Add Claude to any Python app in one line.**
 
 > Not as a chatbot. Not as an agent. As middleware.
 
-claude-hooks is a Python SDK for injecting Claude as a decision-making layer inside existing applications. Decorate any function, write the prompt as a docstring, and Claude handles the rest — with typed I/O, automatic fallbacks, cost controls, circuit breakers, caching, PII filtering, and full observability.
+claudehooks is a Python SDK for injecting Claude as a decision-making layer inside existing applications. Decorate any function, write the prompt as a docstring, and Claude handles the rest — with typed I/O, automatic fallbacks, cost controls, circuit breakers, caching, PII filtering, and full observability.
 
 ## Install
 
 ```bash
-pip install claude-hooks
+pip install claudehooks
 ```
 
 ## Quick Start
@@ -17,7 +17,7 @@ pip install claude-hooks
 ```python
 import os
 from pydantic import BaseModel
-from claude_hooks import HookRouter
+from claudehooks import HookRouter
 
 router = HookRouter(api_key=os.environ["ANTHROPIC_API_KEY"])
 
@@ -124,7 +124,7 @@ router = HookRouter(
 Use `BudgetTracker` directly for custom integrations:
 
 ```python
-from claude_hooks import BudgetTracker
+from claudehooks import BudgetTracker
 
 tracker = BudgetTracker(calls_per_hour=100, global_max_cost_per_hour=2.0)
 if tracker.check("my_hook"):
@@ -147,7 +147,7 @@ router = HookRouter(
 States: `CLOSED` (normal) → `OPEN` (all fallback) → `HALF_OPEN` (one probe) → `CLOSED`.
 
 ```python
-from claude_hooks import CircuitBreaker, CircuitState
+from claudehooks import CircuitBreaker, CircuitState
 
 cb = CircuitBreaker(failure_threshold=3, recovery_timeout=60.0)
 if cb.should_allow():
@@ -184,7 +184,7 @@ async def analyze(text: str) -> Analysis:
 Use `HookCache` directly:
 
 ```python
-from claude_hooks import HookCache
+from claudehooks import HookCache
 
 cache = HookCache(max_size=128, ttl_seconds=300.0)
 cache.put("input text", {"label": "spam"})
@@ -225,10 +225,10 @@ Metrics emitted:
 - `hook.tokens` — cumulative token counter
 - `hook.fallback_count` — fallback invocation counter
 
-Requires: `pip install claude-hooks[telemetry]`. Degrades to no-op when not installed.
+Requires: `pip install claudehooks[telemetry]`. Degrades to no-op when not installed.
 
 ```python
-from claude_hooks import HookTelemetry
+from claudehooks import HookTelemetry
 
 telemetry = HookTelemetry(enabled=True)
 span = telemetry.start_span("my_hook", "claude-haiku-3")
@@ -241,7 +241,7 @@ telemetry.end_span(span, ctx)
 Anonymize sensitive data before it leaves your system. PII tokens are replaced before the API call and restored in the response.
 
 ```python
-from claude_hooks import PIIFilter
+from claudehooks import PIIFilter
 
 f = PIIFilter()
 anonymized, mapping = f.anonymize("Contact john@example.com or call 555-123-4567")
@@ -254,14 +254,14 @@ restored = f.deanonymize(anonymized, mapping)
 
 Detects: email addresses, phone numbers, SSNs, credit card numbers. Uses [Microsoft Presidio](https://microsoft.github.io/presidio/) when installed for broader coverage (50+ entity types), falls back to regex otherwise.
 
-Requires: `pip install claude-hooks[pii]` for Presidio. Regex detection works without it.
+Requires: `pip install claudehooks[pii]` for Presidio. Regex detection works without it.
 
 ### Multi-Provider
 
 Claude is the default. OpenAI GPT models are supported via the same decorator interface.
 
 ```python
-from claude_hooks import HookRouter, OpenAIProvider
+from claudehooks import HookRouter, OpenAIProvider
 
 openai_provider = OpenAIProvider(api_key=os.environ["OPENAI_API_KEY"])
 router = HookRouter(provider=openai_provider)
@@ -277,7 +277,7 @@ Supported OpenAI models: `gpt4o`, `gpt4o-mini`, `o3`, `o3-mini`.
 Implement `LLMProvider` to add any other model:
 
 ```python
-from claude_hooks import LLMProvider, LLMResponse
+from claudehooks import LLMProvider, LLMResponse
 
 class MyProvider(LLMProvider):
     @property
@@ -296,7 +296,7 @@ class MyProvider(LLMProvider):
 
 ```python
 from fastapi import FastAPI, Depends
-from claude_hooks.adapters.fastapi import ClaudeHooksMiddleware, get_router
+from claudehooks.adapters.fastapi import ClaudeHooksMiddleware, get_router
 
 app = FastAPI()
 app.add_middleware(ClaudeHooksMiddleware, router=router)
@@ -310,23 +310,23 @@ async def stats(router=Depends(get_router)):
 
 ```python
 # settings.py
-from claude_hooks import HookRouter
+from claudehooks import HookRouter
 CLAUDE_HOOKS_ROUTER = HookRouter(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 MIDDLEWARE = [
     ...
-    "claude_hooks.adapters.django.ClaudeHooksMiddleware",
+    "claudehooks.adapters.django.ClaudeHooksMiddleware",
 ]
 
 # views.py
 def my_view(request):
-    router = request.claude_hooks_router
+    router = request.claudehooks_router
 ```
 
 **Celery** — wrap tasks with `hook_task` for sync execution in workers:
 
 ```python
-from claude_hooks.adapters.celery import hook_task
+from claudehooks.adapters.celery import hook_task
 
 @hook_task(router, model="haiku", fallback="local")
 def process_ticket(ticket: SupportTicket) -> TriageResult:
@@ -376,10 +376,10 @@ Four working examples are included in `/examples`:
 ## Optional Dependencies
 
 ```bash
-pip install claude-hooks[telemetry]   # OpenTelemetry spans + metrics
-pip install claude-hooks[pii]         # PII filtering via Microsoft Presidio
-pip install claude-hooks[openai]      # OpenAI GPT provider
-pip install claude-hooks[fastapi]     # FastAPI/Starlette middleware adapter
+pip install claudehooks[telemetry]   # OpenTelemetry spans + metrics
+pip install claudehooks[pii]         # PII filtering via Microsoft Presidio
+pip install claudehooks[openai]      # OpenAI GPT provider
+pip install claudehooks[fastapi]     # FastAPI/Starlette middleware adapter
 ```
 
 ## Requirements

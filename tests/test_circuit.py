@@ -1,6 +1,6 @@
 import time
 import pytest
-from claude_hooks.circuit import CircuitBreaker, CircuitState
+from claudehooks.circuit import CircuitBreaker, CircuitState
 
 
 def test_initial_state_is_closed():

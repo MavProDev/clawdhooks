@@ -1,5 +1,5 @@
 import pytest
-from claude_hooks.pii import PIIFilter
+from claudehooks.pii import PIIFilter
 
 
 def test_pii_filter_creation():

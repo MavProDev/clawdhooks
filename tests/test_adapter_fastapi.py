@@ -1,5 +1,5 @@
 import pytest
-from claude_hooks.adapters.fastapi import ClaudeHooksMiddleware, get_router
+from claudehooks.adapters.fastapi import ClaudeHooksMiddleware, get_router
 
 try:
     from fastapi import FastAPI
@@ -20,7 +20,7 @@ def test_get_router_exists():
 
 @pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed")
 def test_middleware_attaches_router(mock_provider, make_response):
-    from claude_hooks import HookRouter
+    from claudehooks import HookRouter
 
     mock_provider._responses = [make_response(content={"sentiment": "positive", "score": 0.9})]
     router = HookRouter(provider=mock_provider)
@@ -51,7 +51,7 @@ def test_middleware_attaches_router(mock_provider, make_response):
 
 @pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed")
 def test_middleware_handles_hook_errors(mock_provider):
-    from claude_hooks import HookRouter
+    from claudehooks import HookRouter
 
     mock_provider._responses = [Exception("API down")]
     router = HookRouter(provider=mock_provider)
@@ -83,7 +83,7 @@ def test_middleware_handles_hook_errors(mock_provider):
 @pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed")
 def test_get_router_dependency(mock_provider, make_response):
     from fastapi import FastAPI, Depends, Request
-    from claude_hooks import HookRouter
+    from claudehooks import HookRouter
 
     router = HookRouter(provider=mock_provider)
 

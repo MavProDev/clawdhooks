@@ -15,12 +15,12 @@ class ClaudeHooksMiddleware:
 
         MIDDLEWARE = [
             ...
-            'claude_hooks.adapters.django.ClaudeHooksMiddleware',
+            'claudehooks.adapters.django.ClaudeHooksMiddleware',
         ]
 
     Access in views:
         def my_view(request):
-            router = request.claude_hooks_router
+            router = request.claudehooks_router
     """
 
     def __init__(self, get_response: Callable):
@@ -44,6 +44,6 @@ class ClaudeHooksMiddleware:
     def __call__(self, request: Any) -> Any:
         router = self._get_router()
         if router is not None:
-            request.claude_hooks_router = router
+            request.claudehooks_router = router
         response = self.get_response(request)
         return response

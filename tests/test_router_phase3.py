@@ -1,7 +1,7 @@
 """Phase 3 integration tests — Cache + Cascade wired into HookRouter."""
 import pytest
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
+from claudehooks.router import HookRouter
 
 
 class Result(BaseModel):

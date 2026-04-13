@@ -1,8 +1,8 @@
 import pytest
 from pydantic import BaseModel
-from claude_hooks.fallbacks import resolve_fallback, resolve_fallback_async
-from claude_hooks.types import FallbackStrategy
-from claude_hooks.exceptions import HookTimeoutError, HookProviderError
+from claudehooks.fallbacks import resolve_fallback, resolve_fallback_async
+from claudehooks.types import FallbackStrategy
+from claudehooks.exceptions import HookTimeoutError, HookProviderError
 
 
 class MockOutput(BaseModel):

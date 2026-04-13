@@ -1,7 +1,7 @@
 """PII integration tests — PIIFilter wired into HookRouter pipeline."""
 import pytest
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
+from claudehooks.router import HookRouter
 
 
 class AnalysisResult(BaseModel):

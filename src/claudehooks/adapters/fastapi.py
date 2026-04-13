@@ -25,7 +25,7 @@ try:
             self.router = router
 
         async def dispatch(self, request: Request, call_next):
-            request.state.claude_hooks_router = self.router
+            request.state.claudehooks_router = self.router
             response = await call_next(request)
             return response
 
@@ -37,7 +37,7 @@ try:
             async def stats(router: HookRouter = Depends(get_router)):
                 return router.stats()
         """
-        router = getattr(request.state, "claude_hooks_router", None)
+        router = getattr(request.state, "claudehooks_router", None)
         if router is None:
             raise RuntimeError(
                 "HookRouter not found on request. "
@@ -53,12 +53,12 @@ except ImportError:
         def __init__(self, *args, **kwargs):
             raise ImportError(
                 "FastAPI/Starlette is required for ClaudeHooksMiddleware. "
-                "Install with: pip install claude-hooks[fastapi]"
+                "Install with: pip install claudehooks[fastapi]"
             )
 
     async def get_router(request=None):  # type: ignore[misc]
         """Stub when FastAPI is not installed."""
         raise ImportError(
             "FastAPI/Starlette is required for get_router. "
-            "Install with: pip install claude-hooks[fastapi]"
+            "Install with: pip install claudehooks[fastapi]"
         )

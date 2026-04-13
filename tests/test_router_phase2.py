@@ -2,8 +2,8 @@
 import pytest
 import asyncio
 from pydantic import BaseModel
-from claude_hooks.router import HookRouter
-from claude_hooks.exceptions import HookBudgetError
+from claudehooks.router import HookRouter
+from claudehooks.exceptions import HookBudgetError
 
 
 class Result(BaseModel):

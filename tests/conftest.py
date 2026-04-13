@@ -1,8 +1,8 @@
 """Shared test fixtures for claude-hooks."""
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from claude_hooks.providers.base import LLMProvider, LLMResponse
-from claude_hooks.telemetry import HAS_OTEL
+from claudehooks.providers.base import LLMProvider, LLMResponse
+from claudehooks.telemetry import HAS_OTEL
 
 # Set up a single global OTel provider for all tests.
 # OTel 1.20+ only allows setting the provider once per process.

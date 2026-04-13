@@ -44,7 +44,7 @@ class HookTelemetry:
     def __init__(self, *, enabled: bool = True):
         self._enabled = enabled and HAS_OTEL
         if self._enabled:
-            self._meter = metrics.get_meter("claude-hooks")
+            self._meter = metrics.get_meter("claudehooks")
             self._duration_histogram = self._meter.create_histogram(
                 "hook.duration_ms",
                 unit="ms",
@@ -72,7 +72,7 @@ class HookTelemetry:
         """Start a new span for a hook invocation."""
         if not self._enabled:
             return _NoOpSpan()
-        tracer = trace.get_tracer("claude-hooks")
+        tracer = trace.get_tracer("claudehooks")
         return tracer.start_span(
             f"hook.{hook_name} {model}",
             attributes={

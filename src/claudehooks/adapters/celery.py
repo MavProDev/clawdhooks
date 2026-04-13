@@ -20,7 +20,7 @@ def hook_task(
     """Decorator that wraps a function as both a claude hook and a Celery-compatible task.
 
     Usage:
-        from claude_hooks.adapters.celery import hook_task
+        from claudehooks.adapters.celery import hook_task
 
         @hook_task(router, model="haiku")
         def process_data(data: DataInput) -> ProcessResult:

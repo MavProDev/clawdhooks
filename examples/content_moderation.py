@@ -14,7 +14,7 @@ import os
 
 from pydantic import BaseModel
 
-from claude_hooks import HookRouter
+from claudehooks import HookRouter
 
 
 # --- Schemas ---

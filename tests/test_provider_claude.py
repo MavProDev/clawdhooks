@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from claude_hooks.providers.claude import ClaudeProvider, MODEL_ALIASES, MODEL_PRICING
+from claudehooks.providers.claude import ClaudeProvider, MODEL_ALIASES, MODEL_PRICING
 
 
 def test_model_aliases():
@@ -10,19 +10,19 @@ def test_model_aliases():
 
 
 def test_provider_name():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("claudehooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     assert provider.name == "claude"
 
 
 def test_default_model():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("claudehooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     assert "sonnet" in provider.default_model()
 
 
 def test_resolve_model_alias():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("claudehooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     assert provider.resolve_model("haiku") == MODEL_ALIASES["haiku"]
     assert provider.resolve_model("sonnet") == MODEL_ALIASES["sonnet"]
@@ -30,14 +30,14 @@ def test_resolve_model_alias():
 
 
 def test_resolve_model_passthrough():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("claudehooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     full_id = "claude-sonnet-4-6"
     assert provider.resolve_model(full_id) == full_id
 
 
 def test_model_timeout_defaults():
-    with patch("claude_hooks.providers.claude.anthropic"):
+    with patch("claudehooks.providers.claude.anthropic"):
         provider = ClaudeProvider(api_key="test-key")
     assert provider.model_timeout("haiku") == 5.0
     assert provider.model_timeout("sonnet") == 10.0
@@ -47,7 +47,7 @@ def test_model_timeout_defaults():
 
 @pytest.mark.asyncio
 async def test_complete_sends_correct_request(mock_anthropic_client):
-    with patch("claude_hooks.providers.claude.anthropic") as mock_anthropic:
+    with patch("claudehooks.providers.claude.anthropic") as mock_anthropic:
         mock_anthropic.AsyncAnthropic.return_value = mock_anthropic_client
         provider = ClaudeProvider(api_key="test-key")
 
@@ -97,12 +97,12 @@ async def test_complete_raises_on_no_tool_use(mock_anthropic_client):
 
     mock_anthropic_client.messages.create.return_value.content = [text_block]
 
-    with patch("claude_hooks.providers.claude.anthropic") as mock_anthropic:
+    with patch("claudehooks.providers.claude.anthropic") as mock_anthropic:
         mock_anthropic.AsyncAnthropic.return_value = mock_anthropic_client
         provider = ClaudeProvider(api_key="test-key")
     provider._client = mock_anthropic_client
 
-    from claude_hooks.exceptions import HookProviderError
+    from claudehooks.exceptions import HookProviderError
 
     with pytest.raises(HookProviderError, match="No structured response"):
         await provider.complete(
