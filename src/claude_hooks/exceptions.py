@@ -28,7 +28,7 @@ class HookValidationError(HookError):
 
     def __init__(self, message: str, *, raw_response: str):
         super().__init__(message)
-        self.raw_response = raw_response
+        self.raw_response = raw_response[:500] + ('...' if len(raw_response) > 500 else '')
 
 
 class HookProviderError(HookError):

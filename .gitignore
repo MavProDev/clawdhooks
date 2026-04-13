@@ -9,7 +9,8 @@ build/
 .venv/
 venv/
 env/
-.env
+.env*
+!.env.example
 .pytest_cache/
 .coverage
 htmlcov/
@@ -17,3 +18,16 @@ htmlcov/
 *.log
 .DS_Store
 Thumbs.db
+
+# Secret files
+*.pem
+*.key
+*.crt
+*.p12
+credentials.json
+secrets.yaml
+.secret*
+
+# IDE
+.idea/
+.vscode/

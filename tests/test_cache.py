@@ -15,10 +15,16 @@ def test_cache_hit_returns_value():
 
 
 def test_cache_normalized_key():
+    # Keys are normalized by stripping leading/trailing whitespace only.
+    # Case is preserved (full SHA-256, no .lower()).
     cache = HookCache(max_size=10, ttl_seconds=60.0)
     cache.put("  Hello World  ", {"action": "allow"})
-    assert cache.get("hello world") == {"action": "allow"}
-    assert cache.get("  HELLO WORLD  ") == {"action": "allow"}
+    # Same content after strip → cache hit
+    assert cache.get("  Hello World  ") == {"action": "allow"}
+    assert cache.get("Hello World") == {"action": "allow"}
+    # Different case → cache miss (case-sensitive)
+    assert cache.get("hello world") is None
+    assert cache.get("  HELLO WORLD  ") is None
 
 
 def test_cache_ttl_expiry():
