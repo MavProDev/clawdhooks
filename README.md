@@ -1,16 +1,56 @@
 # claudehooks
 
-**Add Claude to any Python app in one line.**
+### Turn any Python function into a Claude-powered function. No plumbing. No boilerplate. One decorator.
 
-> Not as a chatbot. Not as an agent. As middleware.
+[![PyPI version](https://img.shields.io/pypi/v/claudehooks.svg)](https://pypi.org/project/claudehooks/)
+[![Python versions](https://img.shields.io/pypi/pyversions/claudehooks.svg)](https://pypi.org/project/claudehooks/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/MavProDev/claudehooks/actions/workflows/ci.yml/badge.svg)](https://github.com/MavProDev/claudehooks/actions/workflows/ci.yml)
 
-claudehooks is a Python SDK for injecting Claude as a decision-making layer inside existing applications. Decorate any function, write the prompt as a docstring, and Claude handles the rest — with typed I/O, automatic fallbacks, cost controls, circuit breakers, caching, PII filtering, and full observability.
+---
 
-## Install
+## 🧠 What is this, in plain English?
+
+- **You have a Python function.** You add one decorator. Now Claude runs the function for you — and gives you back a typed result you can use immediately. No API calls to write. No JSON to parse.
+- **It's like giving your function a brain**, without changing how you call it. Same function signature, same return type, same `await foo(x)`. But under the hood, Claude is doing the thinking.
+- **If Claude is down, slow, or too expensive — your original function body runs as the fallback.** Zero downtime. Your app never breaks because an LLM had a bad day.
+
+## 🎯 What problem does this solve?
+
+You have a real app — a web service, a pipeline, a background worker — and you want to add AI decisions (classify this, moderate that, extract from this, route that) **without rewriting your app around an LLM**. claudehooks drops Claude into the functions you already have, with all the production stuff (cost caps, rate limits, retries, caching, PII filtering, observability) handled for you.
+
+## 📦 Install
 
 ```bash
 pip install claudehooks
 ```
+
+That's it. No config files. No service to run. No infrastructure to set up.
+
+## ⚡ The 10-second example
+
+```python
+from claudehooks import HookRouter
+
+router = HookRouter(api_key="sk-ant-...")
+
+@router.hook(model="haiku")
+async def is_this_spam(email_body: str) -> bool:
+    """Return True if this email looks like spam. Be strict."""
+    return False  # ← fallback: runs if Claude is unavailable
+
+# Use it like any other async function
+result = await is_this_spam("BUY CRYPTO NOW!!! LIMITED TIME!!!")
+# → True
+```
+
+**That's the whole thing.** One decorator, one docstring (= the prompt), one typed return value. Claude reads the docstring, reads the input, and returns a value matching your type hint. If anything goes wrong, the function body runs instead.
+
+## 👤 Who is this for?
+
+Python developers who want to add AI decision-making to existing applications **without rewriting anything**. If you're building a new chatbot from scratch, use a chat framework. If you have a real app and you want to sprinkle Claude in at the decision points, this is for you.
+
+---
 
 ## Quick Start
 
