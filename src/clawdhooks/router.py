@@ -10,8 +10,6 @@ import threading
 from collections import deque
 from typing import Any, Callable, TypeVar, get_type_hints
 
-logger = logging.getLogger(__name__)
-
 from pydantic import BaseModel
 
 from .budget import BudgetTracker
@@ -30,6 +28,8 @@ from .pii import PIIFilter
 from .providers.base import LLMProvider
 from .telemetry import HookTelemetry
 from .types import FallbackStrategy, HookConfig
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
