@@ -31,3 +31,9 @@ secrets.yaml
 # IDE
 .idea/
 .vscode/
+
+# Claude Code internal artifacts — never commit
+.superpowers/
+.claude/
+docs/superpowers/
+docs/handoffs/
